@@ -1,3 +1,8 @@
 <resources>
-    <string name="app_name">Installation works</string>
+    <string name="app_name">Монтажные работы</string>
+
+    <string name="authorization.login.hint">Логин</string>
+    <string name="authorization.password.hint">Пароль</string>
+    <string name="authorization.action">Войти</string>
+    <string name="authorization.enter">Пожалуйста, войдите в аккаунт Яндекс Диска</string>
 </resources>
