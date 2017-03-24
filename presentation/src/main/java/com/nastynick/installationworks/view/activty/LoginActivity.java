@@ -2,7 +2,6 @@ package com.nastynick.installationworks.view.activty;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.nastynick.installationworks.R;
@@ -12,8 +11,7 @@ import com.nastynick.installationworks.view.LoginView;
 
 import javax.inject.Inject;
 
-
-public class LoginActivity extends AppCompatActivity implements LoginView {
+public class LoginActivity extends BaseActivity implements LoginView {
     @Inject
     LoginPresenter loginPresenter;
 
@@ -22,8 +20,8 @@ public class LoginActivity extends AppCompatActivity implements LoginView {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         binding = DataBindingUtil.setContentView(this, R.layout.activity_login);
+        this.getAppComponent().inject(this);
         loginPresenter.setView(this);
     }
 

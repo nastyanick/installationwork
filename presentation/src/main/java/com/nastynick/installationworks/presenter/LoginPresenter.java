@@ -20,6 +20,11 @@ public class LoginPresenter {
         this.loginView = loginView;
     }
 
+    @Inject
+    public void inject() {
+
+    }
+
     public void initialize() {
         String authToken = getAuthToken();
         sharedPreferences.edit().putString("authToken", authToken);
