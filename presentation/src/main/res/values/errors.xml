@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error.auth.unauthorized">Вход в аккаунт невозможен. Неверные логин и пароль</string>
+    <string name="error.auth">Вход в аккаунт невозможен.</string>
+</resources>

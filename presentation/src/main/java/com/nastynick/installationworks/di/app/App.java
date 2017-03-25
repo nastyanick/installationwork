@@ -1,4 +1,4 @@
-package com.nastynick.installationworks.di;
+package com.nastynick.installationworks.di.app;
 
 import android.app.Application;
 
@@ -14,6 +14,7 @@ public class App extends Application {
     public void buildComponent() {
         appComponent = DaggerAppComponent.builder()
                 .appModule(new AppModule(this))
+                .netModule(new NetModule())
                 .build();
     }
 

@@ -4,6 +4,7 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.View;
 
+import com.nastynick.installationworks.BuildConfig;
 import com.nastynick.installationworks.R;
 import com.nastynick.installationworks.databinding.ActivityLoginBinding;
 import com.nastynick.installationworks.presenter.LoginPresenter;
@@ -13,20 +14,25 @@ import javax.inject.Inject;
 
 public class LoginActivity extends BaseActivity implements LoginView {
     @Inject
-    LoginPresenter loginPresenter;
+    protected LoginPresenter loginPresenter;
 
     ActivityLoginBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_login);
         this.getAppComponent().inject(this);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_login);
         loginPresenter.setView(this);
+
+        if (BuildConfig.DEBUG) {
+            binding.login.setText("svt-app");
+            binding.password.setText("123SmartApp");
+        }
     }
 
     public void login(View v) {
-        loginPresenter.initialize();
+        loginPresenter.saveCredentials();
     }
 
     @Override
@@ -37,5 +43,15 @@ public class LoginActivity extends BaseActivity implements LoginView {
     @Override
     public String password() {
         return String.valueOf(binding.password.getText());
+    }
+
+    @Override
+    public void success() {
+        toast(R.string.authorization_success);
+    }
+
+    @Override
+    public void fail(int mesId) {
+        toast(mesId);
     }
 }

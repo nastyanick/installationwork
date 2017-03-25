@@ -5,4 +5,5 @@
     <string name="authorization.password.hint">Пароль</string>
     <string name="authorization.action">Войти</string>
     <string name="authorization.enter">Пожалуйста, войдите в аккаунт Яндекс Диска</string>
+    <string name="authorization.success">Вход в аккаунт выполнен успешно</string>
 </resources>
