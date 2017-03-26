@@ -46,7 +46,6 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
         binding = DataBindingUtil.setContentView(this, R.layout.activity_installation_work_capture);
         getAppComponent().inject(this);
         installationWorkPresenter.setInstallationWorkCaptureView(this);
-        PermissionChecker.checkPermission(this, Manifest.permission.CAMERA, PERMISSION_CAMERA);
     }
 
     public void onScanClick(View view) {
@@ -75,7 +74,9 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
     }
 
     private void dispatchQrCodeScannerIntent() {
-        startActivityForResult(new Intent(this, QrReaderActivity.class), REQUEST_QR_CODE_READ);
+        if (PermissionChecker.checkPermission(this, Manifest.permission.CAMERA, PERMISSION_CAMERA)) {
+            startActivityForResult(new Intent(this, QrReaderActivity.class), REQUEST_QR_CODE_READ);
+        }
     }
 
     private void processQrCode() {
@@ -110,6 +111,8 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
     @Override
     public void imageSuccess() {
         toast(R.string.installation_work_photo_uploaded);
+        startActivity(InstallationWorkCaptureActivity.class);
+        finish();
     }
 
     @Override
@@ -133,12 +136,15 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSION_EXTERNAL_STORAGE: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            switch (requestCode) {
+                case PERMISSION_EXTERNAL_STORAGE: {
                     dispatchTakePictureIntent();
+                    break;
                 }
-                break;
+                case PERMISSION_CAMERA: {
+                    dispatchQrCodeScannerIntent();
+                }
             }
         }
     }
