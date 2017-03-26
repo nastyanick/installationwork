@@ -5,9 +5,11 @@
             <solid android:color="@android:color/white" />
         </shape>
     </item>
-    <item>
+    <item
+        android:left="40dp"
+        android:right="40dp">
         <bitmap
             android:gravity="center"
-            android:src="@drawable/qrcode" />
+            android:src="@drawable/camera" />
     </item>
 </layer-list>
