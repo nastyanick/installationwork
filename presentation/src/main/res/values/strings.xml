@@ -6,4 +6,21 @@
     <string name="authorization.action">Войти</string>
     <string name="authorization.enter">Пожалуйста, войдите в аккаунт Яндекс Диска</string>
     <string name="authorization.success">Вход в аккаунт выполнен успешно</string>
+
+    <string name="qrcode.scan">Сканировать</string>
+    <string name="qrcode.take_photo">Фотографировать</string>
+    <string name="qrcode.rescan">Пересканировать</string>
+
+    <string name="installation_work.root">Монтажные работы</string>
+    <string name="installation_work.photo.water_mark">%1$s %2$s</string>
+
+    <string name="installation_work.photo.processing.title">Обработка фотографии…</string>
+    <string name="installation_work.photo.processing.message">Пожалуйста, подождите</string>
+    <string name="installation_work.photo.uploaded">Изображение успешно загружено на устройство (временное сообщение, пока нет загруки в облако)</string>
+
+    <string name="settings">Настройки</string>
+    <string name="settings.logout">Выйти из аккаунта</string>
+    <string name="settings.photo_rezolution">Разрешение фотографий</string>
+    <string name="settings.photo_rezolution.low">1024×768</string>
+    <string name="settings.photo_rezolution.high">1600×1200</string>
 </resources>

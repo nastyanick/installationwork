@@ -1,10 +1,8 @@
 package com.nastynick.installationworks.view.activty;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
-import com.nastynick.installationworks.R;
 import com.nastynick.installationworks.presenter.StarterPresenter;
 import com.nastynick.installationworks.view.StarterView;
 
@@ -24,12 +22,13 @@ public class SplashActivity extends BaseActivity implements StarterView {
 
     @Override
     public void userLoggedIn() {
-        toast(R.string.authorization_success);
+        startActivity(InstallationWorkCaptureActivity.class);
+        finish();
     }
 
     @Override
     public void userNotLoggedIn() {
-        startActivity(new Intent(this, LoginActivity.class));
+        startActivity(LoginActivity.class);
         finish();
     }
 }

@@ -1,46 +1,32 @@
 package com.nastynick.installationworks.interactor;
 
-import android.content.SharedPreferences;
-
+import com.nastynick.installationworks.CredentialsRepository;
 import com.nastynick.installationworks.PostExecutionThread;
-import com.nastynick.installationworks.repository.ConnectionChecker;
 
 import javax.inject.Inject;
 
-import io.reactivex.Observable;
 import io.reactivex.observers.DisposableObserver;
-import io.reactivex.schedulers.Schedulers;
+import okhttp3.ResponseBody;
 
-public class AuthUseCase {
-
-    @Inject
-    protected ConnectionChecker connectionChecker;
+public class AuthUseCase extends UseCase {
 
     @Inject
-    protected SharedPreferences sharedPreferences;
-
-    @Inject
-    protected PostExecutionThread postExecutionThread;
-
-    public void checkCredentials(DisposableObserver<String> disposableObserver) {
-        Observable<String> observable = connectionChecker.checkConnection();
-        observable.subscribeOn(Schedulers.io())
-                .observeOn(postExecutionThread.getScheduler())
-                .subscribeWith(disposableObserver);
-    }
+    protected CredentialsRepository credentialsRepository;
 
     @Inject
     public AuthUseCase(PostExecutionThread postExecutionThread) {
         this.postExecutionThread = postExecutionThread;
     }
 
+    public void checkCredentials(DisposableObserver<ResponseBody> disposableObserver) {
+        execute(disposableObserver, cloudApi.checkConnection());
+    }
+
     public void saveCredentials(String login, String password) {
-        sharedPreferences.edit().putString(SharedCredentials.LOGIN, login).apply();
-        sharedPreferences.edit().putString(SharedCredentials.PASSWORD, password).apply();
+        credentialsRepository.saveCredentials(login, password);
     }
 
     public boolean checkCredentialsExists() {
-        return sharedPreferences.getString(SharedCredentials.LOGIN, null) != null &&
-                sharedPreferences.getString(SharedCredentials.PASSWORD, null) != null;
+        return credentialsRepository.checkCredentialsExists();
     }
 }

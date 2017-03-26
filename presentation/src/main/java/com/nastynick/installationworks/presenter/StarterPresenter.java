@@ -6,19 +6,20 @@ import com.nastynick.installationworks.view.StarterView;
 import javax.inject.Inject;
 
 import io.reactivex.observers.DisposableObserver;
+import okhttp3.ResponseBody;
 
 public class StarterPresenter {
-    @Inject
     AuthUseCase authUseCase;
 
     StarterView starterView;
 
-    public void setStarterView(StarterView starterView) {
-        this.starterView = starterView;
+    @Inject
+    public StarterPresenter(AuthUseCase authUseCase) {
+        this.authUseCase = authUseCase;
     }
 
-    @Inject
-    public StarterPresenter() {
+    public void setStarterView(StarterView starterView) {
+        this.starterView = starterView;
     }
 
     public void checkUserCredentials() {
@@ -27,10 +28,10 @@ public class StarterPresenter {
         } else starterView.userNotLoggedIn();
     }
 
-    private class StarterObserver extends DisposableObserver<String> {
+    private class StarterObserver extends DisposableObserver<ResponseBody> {
 
         @Override
-        public void onNext(String value) {
+        public void onNext(ResponseBody responseBody) {
         }
 
         @Override

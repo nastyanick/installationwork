@@ -2,9 +2,9 @@ package com.nastynick.installationworks.view.activty;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.View;
 
-import com.nastynick.installationworks.BuildConfig;
 import com.nastynick.installationworks.R;
 import com.nastynick.installationworks.databinding.ActivityLoginBinding;
 import com.nastynick.installationworks.presenter.LoginPresenter;
@@ -25,10 +25,10 @@ public class LoginActivity extends BaseActivity implements LoginView {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_login);
         loginPresenter.setView(this);
 
-        if (BuildConfig.DEBUG) {
-            binding.login.setText("svt-app");
-            binding.password.setText("123SmartApp");
-        }
+//        if (BuildConfig.DEBUG) {
+//            binding.login.setText("svt-app");
+//            binding.password.setText("123SmartApp");
+//        }
     }
 
     public void login(View v) {
@@ -48,10 +48,17 @@ public class LoginActivity extends BaseActivity implements LoginView {
     @Override
     public void success() {
         toast(R.string.authorization_success);
+        startActivity(InstallationWorkCaptureActivity.class);
+        finish();
     }
 
     @Override
     public void fail(int mesId) {
         toast(mesId);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return false;
     }
 }

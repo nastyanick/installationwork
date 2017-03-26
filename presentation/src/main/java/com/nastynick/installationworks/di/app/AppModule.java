@@ -8,16 +8,12 @@ import com.google.gson.GsonBuilder;
 import com.nastynick.installationworks.PostExecutionThread;
 import com.nastynick.installationworks.di.UIThread;
 
-import java.io.IOException;
-
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import okhttp3.Credentials;
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -51,28 +47,19 @@ public class AppModule {
 
     @Provides
     @Singleton
-    public Retrofit retrofit(SharedPreferences sharedPreferences) {
+    public Retrofit retrofit() {
         Gson gson = new GsonBuilder().setLenient().create();
         return new Retrofit.Builder()
                 .baseUrl("https://webdav.yandex.ru")
-                .client(okHttpClient(sharedPreferences))
+                .client(okHttpClient())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
     }
 
-    private OkHttpClient okHttpClient(final SharedPreferences sharedPreferences) {
-        return new OkHttpClient().newBuilder().addInterceptor(new Interceptor() {
-            @Override
-            public okhttp3.Response intercept(Interceptor.Chain chain) throws IOException {
-                Request originalRequest = chain.request();
-                Request.Builder builder = originalRequest.newBuilder().header("Authorization",
-                        Credentials.basic(sharedPreferences.getString("login", ""),
-                                sharedPreferences.getString("password", "")));
-                Request newRequest = builder.build();
-                return chain.proceed(newRequest);
-            }
-        }).build();
+    private OkHttpClient okHttpClient() {
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        return new OkHttpClient().newBuilder().addInterceptor(interceptor).build();
     }
-
 }

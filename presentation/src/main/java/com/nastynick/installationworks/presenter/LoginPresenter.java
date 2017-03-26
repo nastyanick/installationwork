@@ -9,6 +9,7 @@ import java.net.HttpURLConnection;
 import javax.inject.Inject;
 
 import io.reactivex.observers.DisposableObserver;
+import okhttp3.ResponseBody;
 import retrofit2.HttpException;
 
 //@PerActivity
@@ -16,13 +17,13 @@ public class LoginPresenter {
     private final AuthUseCase authUseCase;
     private LoginView loginView;
 
-    public void setView(LoginView loginView) {
-        this.loginView = loginView;
-    }
-
     @Inject
     LoginPresenter(AuthUseCase authUseCase) {
         this.authUseCase = authUseCase;
+    }
+
+    public void setView(LoginView loginView) {
+        this.loginView = loginView;
     }
 
     public void saveCredentials() {
@@ -33,10 +34,10 @@ public class LoginPresenter {
         authUseCase.checkCredentials(new LoginObservable());
     }
 
-    private class LoginObservable extends DisposableObserver<String> {
+    private class LoginObservable extends DisposableObserver<ResponseBody> {
 
         @Override
-        public void onNext(String value) {
+        public void onNext(ResponseBody responseBody) {
         }
 
         @Override
