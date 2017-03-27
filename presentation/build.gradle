@@ -9,7 +9,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 25
         versionCode 1
-        versionName "1.0"
+        versionName "1.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -26,11 +26,12 @@ android {
         sourceCompatibility 1.8
     }
 
+    def appName = "installation_work";
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
             def file = output.outputFile
-            def appId = android.defaultConfig.applicationId
-            def fileName = appId + "-" + variant.buildType.name + ".apk"
+            def versionName = android.defaultConfig.versionName
+            def fileName = appName + "-" + versionName + "-" + variant.buildType.name + ".apk"
             output.outputFile = new File(file.parent, fileName)
         }
     }
