@@ -4,10 +4,10 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.v4.content.FileProvider;
 
-import com.nastynick.installationworks.InstallationWork;
 import com.nastynick.installationworks.PostExecutionThread;
 import com.nastynick.installationworks.R;
 import com.nastynick.installationworks.interactor.UploadFileUseCase;
+import com.nastynick.installationworks.mapper.InstallationWorkCapture;
 import com.nastynick.installationworks.mapper.InstallationWorkQrCodeMapper;
 import com.nastynick.installationworks.util.InstallationFileCreator;
 import com.nastynick.installationworks.util.WaterMarker;
@@ -28,12 +28,12 @@ public class InstallationWorkPresenter {
     protected PostExecutionThread postExecutionThread;
     @Inject
     protected UploadFileUseCase uploadFileUseCase;
+    @Inject
+    protected InstallationWorkCapture installationWorkCapture;
+
     private InstallationWorkQrCodeMapper mapper;
     private InstallationWorkCaptureView installationWorkCaptureView;
-    private InstallationWork installationWork;
-    private File file;
     private Context context;
-    private Uri uri;
 
     @Inject
     public InstallationWorkPresenter(InstallationWorkQrCodeMapper mapper, Context context) {
@@ -46,36 +46,39 @@ public class InstallationWorkPresenter {
     }
 
     public void transformCodeToInstallationWork(String code) {
-        installationWork = mapper.transform(code);
+        installationWorkCapture.setInstallationWork(mapper.transform(code));
     }
 
     public void installationWorkCaptured() {
         installationWorkCaptureView.showLoadingView();
-        Observable.just(uri)
+        Observable.just(installationWorkCapture.getUri())
                 .subscribeOn(Schedulers.io())
                 .map(photoUri -> InstallationFileCreator.bitmapFromUri(context, photoUri))
                 .map(bitmap -> WaterMarker.mark(bitmap, getWaterMarkTitle()))
-                .doOnNext(bitmap -> InstallationFileCreator.saveBitmap(bitmap, file))
+                .doOnNext(bitmap -> InstallationFileCreator.saveBitmap(bitmap, installationWorkCapture.getFile()))
                 .subscribeOn(postExecutionThread.getScheduler())
                 .observeOn(postExecutionThread.getScheduler())
                 .subscribe(bitmap -> {
 //                    installationWorkCaptureView.viewPhoto(bitmap);
                     installationWorkCaptureView.hideLoadingView();
                     installationWorkCaptureView.imageSuccess();
-                    uploadFileUseCase.uploadFile(new InstallationFileUploadObservable(), file);
+                    uploadFileUseCase.uploadFile(new InstallationFileUploadObservable(), installationWorkCapture.getFile());
                 });
     }
 
     private String getWaterMarkTitle() {
         return String.format(context.getResources().getString(R.string.installation_work_photo_water_mark),
-                installationWork.getConstructionNumber(), installationWork.getAddress());
+                installationWorkCapture.getInstallationWork().getConstructionNumber(), installationWorkCapture.getInstallationWork().getAddress());
     }
 
     public Uri createFile() {
-        String[] directories = mapper.getInstallationWorkDirectories(installationWork);
-        file = InstallationFileCreator.createFile(installationWork.getConstructionNumber(),
+        String[] directories = mapper.getInstallationWorkDirectories(installationWorkCapture.getInstallationWork());
+        File file = InstallationFileCreator.createFile(installationWorkCapture.getInstallationWork().getConstructionNumber(),
                 context.getResources().getString(R.string.installation_work_root), directories);
-        uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", file);
+        Uri uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", file);
+
+        installationWorkCapture.setFile(file);
+        installationWorkCapture.setUri(uri);
         return uri;
     }
 
@@ -88,12 +91,7 @@ public class InstallationWorkPresenter {
         @Override
         public void onError(Throwable e) {
             if (e instanceof HttpException) {
-//                int code = ((HttpException) e).code();
-//                if (HttpURLConnection.HTTP_UNAUTHORIZED == code) {
-//                    loginView.fail(R.string.error_auth_unauthorized);
-//                } else loginView.fail(R.string.error_auth);
             }
-
         }
 
         @Override
