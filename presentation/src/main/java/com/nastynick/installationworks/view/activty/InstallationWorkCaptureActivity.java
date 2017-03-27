@@ -123,6 +123,11 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
     }
 
     @Override
+    public void imageFailed() {
+        toast(R.string.error_installation_work_photo_failed);
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (RESULT_OK == resultCode) {

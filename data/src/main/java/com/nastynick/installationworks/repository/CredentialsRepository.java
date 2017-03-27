@@ -1,4 +1,4 @@
-package com.nastynick.installationworks;
+package com.nastynick.installationworks.repository;
 
 import android.content.SharedPreferences;
 
@@ -10,7 +10,6 @@ public class CredentialsRepository {
     private static String LOGIN = "login";
     private static String PASSWORD = "password";
 
-    @Inject
     SharedPreferences sharedPreferences;
 
     @Inject

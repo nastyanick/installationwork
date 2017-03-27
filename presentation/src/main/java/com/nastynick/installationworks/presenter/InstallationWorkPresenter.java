@@ -51,19 +51,10 @@ public class InstallationWorkPresenter {
 
     public void installationWorkCaptured() {
         installationWorkCaptureView.showLoadingView();
-        Observable.just(installationWorkCapture.getUri())
+        Observable.just(installationWorkCapture.getFile())
                 .subscribeOn(Schedulers.io())
-                .map(photoUri -> InstallationFileCreator.bitmapFromUri(context, photoUri))
-                .map(bitmap -> WaterMarker.mark(bitmap, getWaterMarkTitle()))
-                .doOnNext(bitmap -> InstallationFileCreator.saveBitmap(bitmap, installationWorkCapture.getFile()))
-                .subscribeOn(postExecutionThread.getScheduler())
-                .observeOn(postExecutionThread.getScheduler())
-                .subscribe(bitmap -> {
-//                    installationWorkCaptureView.viewPhoto(bitmap);
-                    installationWorkCaptureView.hideLoadingView();
-                    installationWorkCaptureView.imageSuccess();
-                    uploadFileUseCase.uploadFile(new InstallationFileUploadObservable(), installationWorkCapture.getFile());
-                });
+                .doOnNext(file -> WaterMarker.resizeImage(file, 1024, getWaterMarkTitle(), new ImageObserver()))
+                .subscribe();
     }
 
     private String getWaterMarkTitle() {
@@ -80,6 +71,34 @@ public class InstallationWorkPresenter {
         installationWorkCapture.setFile(file);
         installationWorkCapture.setUri(uri);
         return uri;
+    }
+
+    private class ImageObserver extends DisposableObserver {
+        @Override
+        public void onNext(Object value) {
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            Observable.just(installationWorkCaptureView)
+                    .observeOn(postExecutionThread.getScheduler())
+                    .subscribe(t -> {
+                        installationWorkCaptureView.hideLoadingView();
+                        installationWorkCaptureView.imageFailed();
+                    });
+        }
+
+        @Override
+        public void onComplete() {
+            Observable.just(installationWorkCaptureView)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(postExecutionThread.getScheduler())
+                    .doOnNext(t -> {
+                        installationWorkCaptureView.hideLoadingView();
+                        installationWorkCaptureView.imageSuccess();
+                    })
+                    .subscribe(t -> uploadFileUseCase.uploadFile(new InstallationFileUploadObservable(), installationWorkCapture.getFile()));
+        }
     }
 
     private class InstallationFileUploadObservable extends DisposableObserver<ResponseBody> {

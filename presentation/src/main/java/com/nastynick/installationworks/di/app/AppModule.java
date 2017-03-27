@@ -7,6 +7,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.nastynick.installationworks.PostExecutionThread;
 import com.nastynick.installationworks.di.UIThread;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import javax.inject.Singleton;
 
@@ -25,6 +27,8 @@ public class AppModule {
 
     public AppModule(Context context) {
         this.context = context;
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context).build();
+        ImageLoader.getInstance().init(config);
     }
 
     @Provides

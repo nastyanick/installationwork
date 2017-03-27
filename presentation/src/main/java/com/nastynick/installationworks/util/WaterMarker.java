@@ -1,15 +1,35 @@
 package com.nastynick.installationworks.util;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.util.Log;
+import android.view.View;
+
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.assist.ImageSize;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+
+import org.apache.commons.io.IOUtils;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+
+import io.reactivex.Observer;
+
+import static android.graphics.Bitmap.CompressFormat.PNG;
 
 public class WaterMarker {
-    public static Bitmap mark(Bitmap src, String watermark) {
-        int width = src.getWidth() / 2;
-        int height = src.getHeight() / 2;
+    private static Bitmap mark(Bitmap src, String watermark) {
+        int width = src.getWidth();
+        int height = src.getHeight();
 
         Bitmap result = Bitmap.createBitmap(width, height, src.getConfig());
 
@@ -29,25 +49,6 @@ public class WaterMarker {
         return result;
     }
 
-//    private static Bitmap getBitmap(Context context, Bitmap src, int width, int height) {
-//        Bitmap bm = null;
-//        BitmapFactory.Options options = new BitmapFactory.Options();
-//        options.inSampleSize = 5;
-//        AssetFileDescriptor fileDescriptor = null;
-//        try {
-//            fileDescriptor = context.getContentResolver().openAssetFileDescriptor(src, "");
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } finally {
-//            try {
-//                bm = BitmapFactory.decodeFileDescriptor(fileDescriptor.getFileDescriptor(), null, options);
-//                fileDescriptor.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-
     private static Rect setTextSize(Paint paint, String text, int desiredWidth) {
         int textSize = 0;
         Rect bounds = new Rect();
@@ -60,5 +61,58 @@ public class WaterMarker {
             paint.getTextBounds(text, 0, text.length(), bounds);
         }
         return bounds;
+    }
+
+    public static void resizeImage(File file, int maxResolution, String waterMark, Observer observer) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+        final String imageType = options.outMimeType;
+
+        int targetWidth = options.outWidth;
+        int targetHeight = options.outHeight;
+
+        ImageSize targetSize = new ImageSize(targetWidth, targetHeight);
+
+        int maxSize = Math.max(targetWidth, targetHeight);
+        if (maxSize > maxResolution) {
+            float scale = (float) maxResolution / (float) maxSize;
+            targetSize = targetSize.scale(scale);
+        }
+
+        DisplayImageOptions displayImageOptions = new DisplayImageOptions.Builder()
+                .imageScaleType(ImageScaleType.EXACTLY_STRETCHED)
+                .considerExifParams(true)
+                .bitmapConfig(Bitmap.Config.ARGB_8888)
+                .build();
+
+        ImageLoader.getInstance().loadImage("file://" + file.getAbsolutePath(), targetSize, displayImageOptions,
+                new SimpleImageLoadingListener() {
+                    @Override
+                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                        Bitmap markedImage = mark(loadedImage, waterMark);
+                        writeBitmapToFile(markedImage, file, imageType);
+                        observer.onComplete();
+                    }
+
+                    @Override
+                    public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                        observer.onError(failReason.getCause());
+                    }
+                });
+    }
+
+    protected static File writeBitmapToFile(Bitmap bitmap, File file, String imageType) {
+        FileOutputStream outputStream = null;
+        try {
+            outputStream = new FileOutputStream(file);
+            bitmap.compress(PNG.equals(imageType) ? PNG : Bitmap.CompressFormat.JPEG, 100, outputStream);
+            return file;
+        } catch (FileNotFoundException e) {
+            Log.i("gallery", e.getMessage());
+        } finally {
+            IOUtils.closeQuietly(outputStream);
+        }
+        return null;
     }
 }

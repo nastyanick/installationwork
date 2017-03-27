@@ -4,7 +4,6 @@ package com.nastynick.installationworks.repository;
 import android.content.Context;
 import android.util.Base64;
 
-import com.nastynick.installationworks.CredentialsRepository;
 import com.nastynick.installationworks.net.YandexService;
 
 import org.apache.commons.io.IOUtils;

@@ -2,4 +2,6 @@
 <resources>
     <string name="error.auth.unauthorized">Вход в аккаунт невозможен. Неверные логин и пароль</string>
     <string name="error.auth">Вход в аккаунт невозможен.</string>
+
+    <string name="error.installation_work.photo.failed">Ошибка загрузки изображения</string>
 </resources>

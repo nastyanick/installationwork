@@ -10,4 +10,6 @@ public interface InstallationWorkCaptureView {
     void hideLoadingView();
 
     void imageSuccess();
+
+    void imageFailed();
 }
