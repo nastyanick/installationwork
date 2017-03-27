@@ -29,6 +29,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
+                android:onClick="lowResolutionChecked"
                 android:paddingBottom="8dp"
                 android:text="@string/settings.photo_rezolution.low"
                 android:textSize="16sp" />
@@ -37,6 +38,7 @@
                 android:id="@+id/radioButtonHigh"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:onClick="highResolutionChecked"
                 android:paddingTop="8dp"
                 android:text="@string/settings.photo_rezolution.high"
                 android:textSize="16sp" />

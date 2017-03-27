@@ -7,23 +7,30 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.nastynick.installationworks.CredentialsRepository;
 import com.nastynick.installationworks.R;
 import com.nastynick.installationworks.databinding.ActivitySettingsBinding;
+import com.nastynick.installationworks.repository.CredentialsRepository;
+import com.nastynick.installationworks.util.SettingsPresenter;
+import com.nastynick.installationworks.view.SettingsView;
 
 import javax.inject.Inject;
 
-public class SettingsActivity extends BaseActivity {
+public class SettingsActivity extends BaseActivity implements SettingsView {
     @Inject
     CredentialsRepository credentialsRepository;
+
+    @Inject
+    SettingsPresenter settingsPresenter;
+    ActivitySettingsBinding binding;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setTitle(R.string.settings);
-        ActivitySettingsBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_settings);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_settings);
         getAppComponent().inject(this);
+        settingsPresenter.setSettingsView(this);
     }
 
     @Override
@@ -43,5 +50,18 @@ public class SettingsActivity extends BaseActivity {
         credentialsRepository.clear();
         startActivity(LoginActivity.class);
         finish();
+    }
+
+    public void highResolutionChecked(View view) {
+        settingsPresenter.resolutionChecked(false);
+    }
+
+    public void lowResolutionChecked(View view) {
+        settingsPresenter.resolutionChecked(true);
+    }
+
+    @Override
+    public void setSelected(boolean lowSelected) {
+        binding.radioGroup.check(lowSelected ? R.id.radioButtonLow : R.id.radioButtonHigh);
     }
 }

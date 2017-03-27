@@ -6,6 +6,7 @@ import android.support.v4.content.FileProvider;
 
 import com.nastynick.installationworks.PostExecutionThread;
 import com.nastynick.installationworks.R;
+import com.nastynick.installationworks.interactor.SettingsUseCase;
 import com.nastynick.installationworks.interactor.UploadFileUseCase;
 import com.nastynick.installationworks.mapper.InstallationWorkCapture;
 import com.nastynick.installationworks.mapper.InstallationWorkQrCodeMapper;
@@ -33,11 +34,13 @@ public class InstallationWorkPresenter {
 
     private InstallationWorkQrCodeMapper mapper;
     private InstallationWorkCaptureView installationWorkCaptureView;
+    private SettingsUseCase settings;
     private Context context;
 
     @Inject
-    public InstallationWorkPresenter(InstallationWorkQrCodeMapper mapper, Context context) {
+    public InstallationWorkPresenter(InstallationWorkQrCodeMapper mapper, SettingsUseCase settings, Context context) {
         this.mapper = mapper;
+        this.settings = settings;
         this.context = context;
     }
 
@@ -53,7 +56,7 @@ public class InstallationWorkPresenter {
         installationWorkCaptureView.showLoadingView();
         Observable.just(installationWorkCapture.getFile())
                 .subscribeOn(Schedulers.io())
-                .doOnNext(file -> WaterMarker.resizeImage(file, 1024, getWaterMarkTitle(), new ImageObserver()))
+                .doOnNext(file -> WaterMarker.resizeImage(file, settings.getWidth(), getWaterMarkTitle(), new ImageObserver()))
                 .subscribe();
     }
 
