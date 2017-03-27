@@ -8,8 +8,8 @@ import android.graphics.Rect;
 
 public class WaterMarker {
     public static Bitmap mark(Bitmap src, String watermark) {
-        int width = src.getWidth();
-        int height = src.getHeight();
+        int width = src.getWidth() / 2;
+        int height = src.getHeight() / 2;
 
         Bitmap result = Bitmap.createBitmap(width, height, src.getConfig());
 
@@ -28,6 +28,25 @@ public class WaterMarker {
 
         return result;
     }
+
+//    private static Bitmap getBitmap(Context context, Bitmap src, int width, int height) {
+//        Bitmap bm = null;
+//        BitmapFactory.Options options = new BitmapFactory.Options();
+//        options.inSampleSize = 5;
+//        AssetFileDescriptor fileDescriptor = null;
+//        try {
+//            fileDescriptor = context.getContentResolver().openAssetFileDescriptor(src, "");
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } finally {
+//            try {
+//                bm = BitmapFactory.decodeFileDescriptor(fileDescriptor.getFileDescriptor(), null, options);
+//                fileDescriptor.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
     private static Rect setTextSize(Paint paint, String text, int desiredWidth) {
         int textSize = 0;
