@@ -21,6 +21,6 @@
     <string name="settings">Настройки</string>
     <string name="settings.logout">Выйти из аккаунта</string>
     <string name="settings.photo_rezolution">Разрешение фотографий</string>
-    <string name="settings.photo_rezolution.low">1024×768</string>
-    <string name="settings.photo_rezolution.high">1600×1200</string>
+    <string name="settings.photo_rezolution.low">Низкое качество (компактный размер фотографий)</string>
+    <string name="settings.photo_rezolution.high">Высокое качество (большой размер фотографий)</string>
 </resources>
