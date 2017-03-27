@@ -1,11 +1,16 @@
 package com.nastynick.installationworks.util;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class InstallationFileCreator {
     public static File createFile(String fileName, String rootName, String[] directoryNames) {
@@ -34,5 +39,14 @@ public class InstallationFileCreator {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static Bitmap bitmapFromUri(Context context, Uri photoUri) throws IOException {
+        InputStream is = context.getContentResolver().openInputStream(photoUri);
+        Bitmap bitmap = BitmapFactory.decodeStream(is);
+        if (is != null) {
+            is.close();
+        }
+        return bitmap;
     }
 }

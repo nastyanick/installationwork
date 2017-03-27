@@ -1,7 +1,8 @@
 package com.nastynick.installationworks.presenter;
 
 import android.content.Context;
-import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.support.v4.content.FileProvider;
 
 import com.nastynick.installationworks.InstallationWork;
 import com.nastynick.installationworks.PostExecutionThread;
@@ -32,6 +33,7 @@ public class InstallationWorkPresenter {
     private InstallationWork installationWork;
     private File file;
     private Context context;
+    private Uri uri;
 
     @Inject
     public InstallationWorkPresenter(InstallationWorkQrCodeMapper mapper, Context context) {
@@ -49,9 +51,9 @@ public class InstallationWorkPresenter {
 
     public void installationWorkCaptured() {
         installationWorkCaptureView.showLoadingView();
-        Observable.just(file.getAbsolutePath())
+        Observable.just(uri)
                 .subscribeOn(Schedulers.io())
-                .map(BitmapFactory::decodeFile)
+                .map(photoUri -> InstallationFileCreator.bitmapFromUri(context, photoUri))
                 .map(bitmap -> WaterMarker.mark(bitmap, getWaterMarkTitle()))
                 .doOnNext(bitmap -> InstallationFileCreator.saveBitmap(bitmap, file))
                 .subscribeOn(postExecutionThread.getScheduler())
@@ -69,11 +71,12 @@ public class InstallationWorkPresenter {
                 installationWork.getConstructionNumber(), installationWork.getAddress());
     }
 
-    public File createFile() {
+    public Uri createFile() {
         String[] directories = mapper.getInstallationWorkDirectories(installationWork);
         file = InstallationFileCreator.createFile(installationWork.getConstructionNumber(),
                 context.getResources().getString(R.string.installation_work_root), directories);
-        return file;
+        uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", file);
+        return uri;
     }
 
     private class InstallationFileUploadObservable extends DisposableObserver<ResponseBody> {

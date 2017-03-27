@@ -4,13 +4,14 @@ import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.content.FileProvider;
 import android.view.View;
 
 import com.nastynick.installationworks.R;
@@ -19,7 +20,7 @@ import com.nastynick.installationworks.presenter.InstallationWorkPresenter;
 import com.nastynick.installationworks.util.PermissionChecker;
 import com.nastynick.installationworks.view.InstallationWorkCaptureView;
 
-import java.io.File;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -65,10 +66,15 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            File photoFile = installationWorkPresenter.createFile();
+            Uri photoFile = installationWorkPresenter.createFile();
             if (photoFile != null) {
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(this,
-                        getApplicationContext().getPackageName() + ".provider", photoFile));
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoFile);
+
+                List<ResolveInfo> resInfoList = getPackageManager().queryIntentActivities(takePictureIntent, PackageManager.MATCH_DEFAULT_ONLY);
+                for (ResolveInfo resolveInfo : resInfoList) {
+                    String packageName = resolveInfo.activityInfo.packageName;
+                    grantUriPermission(packageName, photoFile, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                }
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
         }
