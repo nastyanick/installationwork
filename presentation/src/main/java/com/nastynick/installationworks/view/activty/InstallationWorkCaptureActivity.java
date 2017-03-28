@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.databinding.DataBindingUtil;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -24,15 +23,11 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-
 public class InstallationWorkCaptureActivity extends BaseActivity implements InstallationWorkCaptureView {
     public static final int REQUEST_QR_CODE_READ = 100;
     public static final int REQUEST_IMAGE_CAPTURE = 200;
     public static final int PERMISSION_CAMERA = 300;
     public static final int PERMISSION_EXTERNAL_STORAGE = 400;
-
     public static final String QR_CODE = "qrcode";
 
     @Inject
@@ -94,19 +89,16 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
     }
 
     @Override
-    public void viewPhoto(Bitmap photo) {
-        Observable.just(photo)
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .subscribe(bitmap -> binding.photo.setImageBitmap(bitmap));
-//        binding.photo.setImageBitmap(photo);
-    }
-
-    @Override
-    public void showLoadingView() {
+    public void showLoadingView(boolean upload) {
         progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle(R.string.installation_work_photo_processing_title);
+        progressDialog.setCancelable(false);
+        progressDialog.setTitle(upload ? R.string.installation_work_photo_processing_title_uploading :
+                R.string.installation_work_photo_processing_title_saving);
         progressDialog.setMessage(getResources().getString(R.string.installation_work_photo_processing_message));
-        progressDialog.setIndeterminate(true);
+        progressDialog.setIndeterminate(!upload);
+        if (upload) {
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        }
         progressDialog.show();
     }
 
@@ -116,15 +108,29 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
     }
 
     @Override
-    public void imageSuccess() {
-        toast(R.string.installation_work_photo_uploaded);
-        startActivity(InstallationWorkCaptureActivity.class);
-        finish();
+    public void imageSuccess(int message) {
+        toast(message);
     }
 
     @Override
     public void imageFailed() {
         toast(R.string.error_installation_work_photo_failed);
+    }
+
+    @Override
+    public void qrCodeFailed() {
+        toast(R.string.error_installation_work_qr_code_failed);
+    }
+
+    @Override
+    public void setProgress(Integer progress) {
+        progressDialog.setProgress(progress);
+    }
+
+    @Override
+    public void onFinish() {
+        startActivity(InstallationWorkCaptureActivity.class);
+        finish();
     }
 
     @Override
@@ -159,5 +165,13 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
                 }
             }
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.setCancelable(true);
+            progressDialog.dismiss();
+        } else super.onBackPressed();
     }
 }

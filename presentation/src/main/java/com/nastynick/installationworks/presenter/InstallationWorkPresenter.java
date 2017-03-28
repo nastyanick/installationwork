@@ -4,13 +4,13 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.v4.content.FileProvider;
 
+import com.nastynick.installationworks.InstallationWork;
+import com.nastynick.installationworks.InstallationWorkCapture;
 import com.nastynick.installationworks.PostExecutionThread;
 import com.nastynick.installationworks.R;
 import com.nastynick.installationworks.interactor.SettingsUseCase;
 import com.nastynick.installationworks.interactor.UploadFileUseCase;
-import com.nastynick.installationworks.mapper.InstallationWorkCapture;
 import com.nastynick.installationworks.mapper.InstallationWorkQrCodeMapper;
-import com.nastynick.installationworks.util.InstallationFileCreator;
 import com.nastynick.installationworks.util.WaterMarker;
 import com.nastynick.installationworks.view.InstallationWorkCaptureView;
 
@@ -25,23 +25,23 @@ import okhttp3.ResponseBody;
 import retrofit2.HttpException;
 
 public class InstallationWorkPresenter {
-    @Inject
-    protected PostExecutionThread postExecutionThread;
-    @Inject
-    protected UploadFileUseCase uploadFileUseCase;
-    @Inject
     protected InstallationWorkCapture installationWorkCapture;
-
     private InstallationWorkQrCodeMapper mapper;
-    private InstallationWorkCaptureView installationWorkCaptureView;
+    private PostExecutionThread postExecutionThread;
+    private UploadFileUseCase uploadFileUseCase;
     private SettingsUseCase settings;
     private Context context;
+    private InstallationWorkCaptureView installationWorkCaptureView;
 
     @Inject
-    public InstallationWorkPresenter(InstallationWorkQrCodeMapper mapper, SettingsUseCase settings, Context context) {
+    public InstallationWorkPresenter(InstallationWorkQrCodeMapper mapper, SettingsUseCase settings, Context context,
+                                     PostExecutionThread postExecutionThread, UploadFileUseCase uploadFileUseCase, InstallationWorkCapture installationWorkCapture) {
         this.mapper = mapper;
         this.settings = settings;
         this.context = context;
+        this.postExecutionThread = postExecutionThread;
+        this.uploadFileUseCase = uploadFileUseCase;
+        this.installationWorkCapture = installationWorkCapture;
     }
 
     public void setInstallationWorkCaptureView(InstallationWorkCaptureView installationWorkCaptureView) {
@@ -49,31 +49,44 @@ public class InstallationWorkPresenter {
     }
 
     public void transformCodeToInstallationWork(String code) {
-        installationWorkCapture.setInstallationWork(mapper.transform(code));
+        InstallationWork transform = mapper.transform(code);
+        if (transform == null) {
+            installationWorkCaptureView.qrCodeFailed();
+            installationWorkCaptureView.onFinish();
+        } else installationWorkCapture.setInstallationWork(transform);
     }
 
     public void installationWorkCaptured() {
-        installationWorkCaptureView.showLoadingView();
+        installationWorkCaptureView.showLoadingView(false);
         Observable.just(installationWorkCapture.getFile())
                 .subscribeOn(Schedulers.io())
-                .doOnNext(file -> WaterMarker.resizeImage(file, settings.getWidth(), getWaterMarkTitle(), new ImageObserver()))
+                .doOnNext(file -> WaterMarker.resizeImage(file, settings.getWidth(),
+                        installationWorkCapture.getInstallationWork().getTitle(), new ImageObserver()))
                 .subscribe();
     }
 
-    private String getWaterMarkTitle() {
-        return String.format(context.getResources().getString(R.string.installation_work_photo_water_mark),
-                installationWorkCapture.getInstallationWork().getConstructionNumber(), installationWorkCapture.getInstallationWork().getAddress());
+    public Uri createFile() {
+        String fileName = installationWorkCapture.getInstallationWork().getTitle();
+        String root = context.getResources().getString(R.string.installation_work_root);
+        String[] directories = mapper.getInstallationWorkDirectories(root, installationWorkCapture.getInstallationWork());
+        File file = uploadFileUseCase.createFile(directories, fileName);
+        installationWorkCapture.setFile(file);
+        return FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", file);
     }
 
-    public Uri createFile() {
-        String[] directories = mapper.getInstallationWorkDirectories(installationWorkCapture.getInstallationWork());
-        File file = InstallationFileCreator.createFile(installationWorkCapture.getInstallationWork().getConstructionNumber(),
-                context.getResources().getString(R.string.installation_work_root), directories);
-        Uri uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", file);
-
-        installationWorkCapture.setFile(file);
-        installationWorkCapture.setUri(uri);
-        return uri;
+    private void uploadImage() {
+        String root = context.getResources().getString(R.string.installation_work_root);
+        Observable.just(installationWorkCaptureView)
+                .subscribeOn(Schedulers.io())
+                .observeOn(postExecutionThread.getScheduler())
+                .doOnNext(t -> {
+                    installationWorkCaptureView.hideLoadingView();
+                    installationWorkCaptureView.imageSuccess(R.string.installation_work_photo_saved);
+                    installationWorkCaptureView.showLoadingView(true);
+                })
+                .subscribe(t -> uploadFileUseCase.uploadFile(new InstallationFileUploadObservable(),
+                        new ProgressObserver(), mapper.getInstallationWorkDirectories(root, installationWorkCapture.getInstallationWork()),
+                        installationWorkCapture.getFile()));
     }
 
     private class ImageObserver extends DisposableObserver {
@@ -93,14 +106,24 @@ public class InstallationWorkPresenter {
 
         @Override
         public void onComplete() {
-            Observable.just(installationWorkCaptureView)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(postExecutionThread.getScheduler())
-                    .doOnNext(t -> {
-                        installationWorkCaptureView.hideLoadingView();
-                        installationWorkCaptureView.imageSuccess();
-                    })
-                    .subscribe(t -> uploadFileUseCase.uploadFile(new InstallationFileUploadObservable(), installationWorkCapture.getFile()));
+            uploadImage();
+        }
+    }
+
+    private class ProgressObserver extends DisposableObserver<Integer> {
+        @Override
+        public void onNext(Integer value) {
+            installationWorkCaptureView.setProgress(value);
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            installationWorkCaptureView.hideLoadingView();
+            installationWorkCaptureView.imageFailed();
+        }
+
+        @Override
+        public void onComplete() {
         }
     }
 
@@ -118,7 +141,10 @@ public class InstallationWorkPresenter {
 
         @Override
         public void onComplete() {
+            installationWorkCapture.clear();
+            installationWorkCaptureView.imageSuccess(R.string.installation_work_photo_uploaded);
             installationWorkCaptureView.hideLoadingView();
+            installationWorkCaptureView.onFinish();
         }
     }
 }

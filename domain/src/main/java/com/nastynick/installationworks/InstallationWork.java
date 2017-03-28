@@ -8,6 +8,7 @@ public class InstallationWork {
     private String date;
     private String constructionNumber;
     private String address;
+    private String title;
 
     public String getYear() {
         return year;
@@ -63,5 +64,13 @@ public class InstallationWork {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

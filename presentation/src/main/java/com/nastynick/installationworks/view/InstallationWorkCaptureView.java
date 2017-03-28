@@ -1,15 +1,18 @@
 package com.nastynick.installationworks.view;
 
-import android.graphics.Bitmap;
-
 public interface InstallationWorkCaptureView {
-    void viewPhoto(Bitmap photo);
 
-    void showLoadingView();
+    void showLoadingView(boolean upload);
 
     void hideLoadingView();
 
-    void imageSuccess();
+    void imageSuccess(int message);
 
     void imageFailed();
+
+    void qrCodeFailed();
+
+    void setProgress(Integer progress);
+
+    void onFinish();
 }

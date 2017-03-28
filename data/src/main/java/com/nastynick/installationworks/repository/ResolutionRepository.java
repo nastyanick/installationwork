@@ -5,8 +5,8 @@ import android.content.SharedPreferences;
 import javax.inject.Inject;
 
 public class ResolutionRepository {
-    private static final int LOW_RESOLUTION_WIDTH = 1024;
-    private static final int HIGH_RESOLUTION_WIDTH = 1600;
+    private static final int LOW_RESOLUTION_WIDTH = 800;
+    private static final int HIGH_RESOLUTION_WIDTH = 1400;
     private static String WIDTH = "width";
 
     SharedPreferences sharedPreferences;

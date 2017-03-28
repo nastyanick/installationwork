@@ -1,6 +1,6 @@
 package com.nastynick.installationworks.di.app;
 
-import com.nastynick.installationworks.mapper.InstallationWorkCapture;
+import com.nastynick.installationworks.InstallationWorkCapture;
 
 import javax.inject.Singleton;
 

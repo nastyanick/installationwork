@@ -10,11 +10,16 @@ import com.nastynick.installationworks.di.UIThread;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import okhttp3.Credentials;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
@@ -51,19 +56,38 @@ public class AppModule {
 
     @Provides
     @Singleton
-    public Retrofit retrofit() {
+    public Retrofit retrofit(SharedPreferences sharedPreferences) {
         Gson gson = new GsonBuilder().setLenient().create();
         return new Retrofit.Builder()
                 .baseUrl("https://webdav.yandex.ru")
-                .client(okHttpClient())
+                .client(okHttpClient(sharedPreferences))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
     }
 
-    private OkHttpClient okHttpClient() {
+    private OkHttpClient okHttpClient(SharedPreferences sharedPreferences) {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        return new OkHttpClient().newBuilder().addInterceptor(interceptor).build();
+
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        Interceptor auth = chain -> {
+            Request originalRequest = chain.request();
+            Request.Builder builder = originalRequest.newBuilder().header("Authorization",
+                    Credentials.basic(sharedPreferences.getString("login", ""),
+                            sharedPreferences.getString("password", "")));
+            Request newRequest = builder.build();
+            return chain.proceed(newRequest);
+        };
+        return new OkHttpClient()
+                .newBuilder()
+                .addInterceptor(interceptor)
+                .addInterceptor(logging)
+                .connectTimeout(10, TimeUnit.MINUTES)
+                .writeTimeout(10, TimeUnit.MINUTES)
+                .addInterceptor(auth)
+                .build();
     }
 }

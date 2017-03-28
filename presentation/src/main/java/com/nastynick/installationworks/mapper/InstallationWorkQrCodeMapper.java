@@ -1,6 +1,9 @@
 package com.nastynick.installationworks.mapper;
 
+import android.content.Context;
+
 import com.nastynick.installationworks.InstallationWork;
+import com.nastynick.installationworks.R;
 
 import java.util.Calendar;
 
@@ -14,26 +17,39 @@ public class InstallationWorkQrCodeMapper {
     private static final int CONTRACTOR_CODE = 4;
     private static final int MATERIAL_NAME = 5;
     private static final int ADDRESS = 6;
+    private Context context;
 
     @Inject
-    public InstallationWorkQrCodeMapper() {
+    public InstallationWorkQrCodeMapper(Context context) {
+        this.context = context;
     }
 
     public InstallationWork transform(String qrCode) {
-        String[] installationWorkFields = qrCode.split(DELIMITER);
-        InstallationWork installationWork = new InstallationWork();
-        installationWork.setYear(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
-        installationWork.setOrderNumber(installationWorkFields[ORDER_NUMBER]);
-        installationWork.setConstructionNumber(installationWorkFields[CONSTRUCTION_NUMBER]);
-        installationWork.setDate(installationWorkFields[DATE]);
-        installationWork.setContractorCode(installationWorkFields[CONTRACTOR_CODE]);
-        installationWork.setMaterialName(installationWorkFields[MATERIAL_NAME]);
-        installationWork.setAddress(installationWorkFields[ADDRESS]);
-        return installationWork;
+        try {
+            String[] installationWorkFields = qrCode.split(DELIMITER);
+            InstallationWork installationWork = new InstallationWork();
+            installationWork.setYear(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
+            installationWork.setOrderNumber(installationWorkFields[ORDER_NUMBER]);
+            installationWork.setConstructionNumber(installationWorkFields[CONSTRUCTION_NUMBER]);
+            installationWork.setDate(installationWorkFields[DATE]);
+            installationWork.setContractorCode(installationWorkFields[CONTRACTOR_CODE]);
+            installationWork.setMaterialName(installationWorkFields[MATERIAL_NAME]);
+            installationWork.setAddress(installationWorkFields[ADDRESS]);
+            installationWork.setTitle(getTitle(installationWork.getConstructionNumber(), installationWork.getAddress()));
+            return installationWork;
+        } catch (RuntimeException e) {
+            return null;
+        }
     }
 
-    public String[] getInstallationWorkDirectories(InstallationWork installationWork) {
-        return new String[]{installationWork.getYear(), installationWork.getContractorCode(),
+    private String getTitle(String constructionNumber, String address) {
+        address = address.replace("/", "_");
+        return String.format(context.getResources().getString(R.string.installation_work_title),
+                constructionNumber, address);
+    }
+
+    public String[] getInstallationWorkDirectories(String root, InstallationWork installationWork) {
+        return new String[]{root, installationWork.getYear(), installationWork.getContractorCode(),
                 installationWork.getOrderNumber(), installationWork.getMaterialName(),
                 installationWork.getDate()};
     }
