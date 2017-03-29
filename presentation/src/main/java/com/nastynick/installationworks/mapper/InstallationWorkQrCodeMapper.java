@@ -28,6 +28,7 @@ public class InstallationWorkQrCodeMapper {
         try {
             String[] installationWorkFields = qrCode.split(DELIMITER);
             InstallationWork installationWork = new InstallationWork();
+            installationWork.setQrCode(qrCode);
             installationWork.setYear(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
             installationWork.setOrderNumber(installationWorkFields[ORDER_NUMBER]);
             installationWork.setConstructionNumber(installationWorkFields[CONSTRUCTION_NUMBER]);

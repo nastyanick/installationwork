@@ -10,11 +10,13 @@ import com.nastynick.installationworks.PostExecutionThread;
 import com.nastynick.installationworks.R;
 import com.nastynick.installationworks.interactor.SettingsUseCase;
 import com.nastynick.installationworks.interactor.UploadFileUseCase;
+import com.nastynick.installationworks.mapper.InstallationWorkDataMapper;
 import com.nastynick.installationworks.mapper.InstallationWorkQrCodeMapper;
 import com.nastynick.installationworks.util.WaterMarker;
 import com.nastynick.installationworks.view.InstallationWorkCaptureView;
 
 import java.io.File;
+import java.net.UnknownHostException;
 
 import javax.inject.Inject;
 
@@ -22,10 +24,10 @@ import io.reactivex.Observable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
-import retrofit2.HttpException;
 
 public class InstallationWorkPresenter {
     protected InstallationWorkCapture installationWorkCapture;
+    private InstallationWorkDataMapper dataMapper;
     private InstallationWorkQrCodeMapper mapper;
     private PostExecutionThread postExecutionThread;
     private UploadFileUseCase uploadFileUseCase;
@@ -35,13 +37,15 @@ public class InstallationWorkPresenter {
 
     @Inject
     public InstallationWorkPresenter(InstallationWorkQrCodeMapper mapper, SettingsUseCase settings, Context context,
-                                     PostExecutionThread postExecutionThread, UploadFileUseCase uploadFileUseCase, InstallationWorkCapture installationWorkCapture) {
+                                     PostExecutionThread postExecutionThread, UploadFileUseCase uploadFileUseCase,
+                                     InstallationWorkCapture installationWorkCapture, InstallationWorkDataMapper dataMapper) {
         this.mapper = mapper;
         this.settings = settings;
         this.context = context;
         this.postExecutionThread = postExecutionThread;
         this.uploadFileUseCase = uploadFileUseCase;
         this.installationWorkCapture = installationWorkCapture;
+        this.dataMapper = dataMapper;
     }
 
     public void setInstallationWorkCaptureView(InstallationWorkCaptureView installationWorkCaptureView) {
@@ -84,9 +88,12 @@ public class InstallationWorkPresenter {
                     installationWorkCaptureView.imageSuccess(R.string.installation_work_photo_saved);
                     installationWorkCaptureView.showLoadingView(true);
                 })
-                .subscribe(t -> uploadFileUseCase.uploadFile(new InstallationFileUploadObservable(),
-                        new ProgressObserver(), mapper.getInstallationWorkDirectories(root, installationWorkCapture.getInstallationWork()),
-                        installationWorkCapture.getFile()));
+                .subscribe(t -> {
+                    InstallationWork installationWork = installationWorkCapture.getInstallationWork();
+                    uploadFileUseCase.uploadFile(new FileUploadObservable(installationWork),
+                            new ProgressObserver(installationWork), mapper.getInstallationWorkDirectories(root, installationWork),
+                            installationWorkCapture.getFile());
+                });
     }
 
     private class ImageObserver extends DisposableObserver {
@@ -111,6 +118,12 @@ public class InstallationWorkPresenter {
     }
 
     private class ProgressObserver extends DisposableObserver<Integer> {
+        InstallationWork installationWork;
+
+        public ProgressObserver(InstallationWork installationWork) {
+            this.installationWork = installationWork;
+        }
+
         @Override
         public void onNext(Integer value) {
             installationWorkCaptureView.setProgress(value);
@@ -118,6 +131,9 @@ public class InstallationWorkPresenter {
 
         @Override
         public void onError(Throwable e) {
+            if (e instanceof UnknownHostException) {
+                saveInstallationWork(installationWork);
+            }
             installationWorkCaptureView.hideLoadingView();
             installationWorkCaptureView.imageFailed();
         }
@@ -127,7 +143,16 @@ public class InstallationWorkPresenter {
         }
     }
 
-    private class InstallationFileUploadObservable extends DisposableObserver<ResponseBody> {
+    private void saveInstallationWork(InstallationWork installationWork) {
+        dataMapper.saveToData(installationWork);
+    }
+
+    private class FileUploadObservable extends DisposableObserver<ResponseBody> {
+        InstallationWork installationWork;
+
+        public FileUploadObservable(InstallationWork installationWork) {
+            this.installationWork = installationWork;
+        }
 
         @Override
         public void onNext(ResponseBody responseBody) {
@@ -135,7 +160,8 @@ public class InstallationWorkPresenter {
 
         @Override
         public void onError(Throwable e) {
-            if (e instanceof HttpException) {
+            if (e instanceof UnknownHostException) {
+                saveInstallationWork(installationWork);
             }
         }
 

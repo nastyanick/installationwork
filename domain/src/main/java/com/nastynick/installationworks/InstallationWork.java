@@ -9,6 +9,7 @@ public class InstallationWork {
     private String constructionNumber;
     private String address;
     private String title;
+    private String qrCode;
 
     public String getYear() {
         return year;
@@ -72,5 +73,13 @@ public class InstallationWork {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getQrCode() {
+        return qrCode;
+    }
+
+    public void setQrCode(String qrCode) {
+        this.qrCode = qrCode;
     }
 }

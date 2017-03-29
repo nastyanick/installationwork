@@ -3,6 +3,8 @@ package com.nastynick.installationworks.presenter;
 import com.nastynick.installationworks.interactor.AuthUseCase;
 import com.nastynick.installationworks.view.StarterView;
 
+import java.net.UnknownHostException;
+
 import javax.inject.Inject;
 
 import io.reactivex.observers.DisposableObserver;
@@ -36,7 +38,9 @@ public class StarterPresenter {
 
         @Override
         public void onError(Throwable e) {
-            starterView.userNotLoggedIn();
+            if (e instanceof UnknownHostException) {
+                starterView.userLoggedIn();
+            } else starterView.userNotLoggedIn();
         }
 
         @Override
