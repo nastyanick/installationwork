@@ -21,10 +21,10 @@ import retrofit2.Retrofit;
 
 @Module
 public class NetModule {
-
     private BackgroundUploader backgroundUploader;
 
-    public NetModule(Context context) {
+    public NetModule(Context context, BackgroundUploader backgroundUploader) {
+        this.backgroundUploader = backgroundUploader;
         Realm.init(context);
         RealmConfiguration realmConfiguration = new RealmConfiguration.Builder()
                 .rxFactory(new RealmObservableFactory())

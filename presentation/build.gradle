@@ -1,6 +1,19 @@
+buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+    }
+
+    dependencies {
+        classpath 'io.fabric.tools:gradle:1.+'
+    }
+}
 apply plugin: 'com.android.application'
 apply plugin: 'me.tatarka.retrolambda'
+apply plugin: 'io.fabric'
 
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
@@ -58,7 +71,9 @@ dependencies {
     compile 'commons-io:commons-io:2.4'
     provided 'javax.annotation:jsr250-api:1.0'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
-
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {
+        transitive = true;
+    }
     testCompile 'junit:junit:4.12'
     compile project(path: ':domain')
     compile project(path: ':data')
