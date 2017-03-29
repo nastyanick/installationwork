@@ -1,9 +1,14 @@
 package com.nastynick.installationworks.di.app;
 
 import android.app.Application;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import com.crashlytics.android.Crashlytics;
-import com.nastynick.installationworks.net.BackgroundUploader;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
@@ -21,15 +26,37 @@ public class App extends Application {
         buildComponent();
     }
 
+    public void registerConnectionChecker(BackgroundUploader backgroundUploader) {
+        registerReceiver(new ConnectivityChangeReceiver(backgroundUploader), new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
+    }
+
     public void buildComponent() {
         appComponent = DaggerAppComponent.builder()
                 .appModule(new AppModule(this))
-                .netModule(new NetModule(this, new BackgroundUploader()))
+                .netModule(new NetModule(this))
                 .dataModule(new DataModule())
                 .build();
     }
 
     public AppComponent getAppComponent() {
         return appComponent;
+    }
+
+    private class ConnectivityChangeReceiver extends BroadcastReceiver {
+        private BackgroundUploader backgroundUploader;
+
+        public ConnectivityChangeReceiver(BackgroundUploader backgroundUploader) {
+
+            this.backgroundUploader = backgroundUploader;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ConnectivityManager connectivityManager = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
+            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+            if (networkInfo != null && networkInfo.isConnected()) {
+                backgroundUploader.uploadFailed();
+            }
+        }
     }
 }

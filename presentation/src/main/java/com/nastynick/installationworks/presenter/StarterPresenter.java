@@ -1,5 +1,6 @@
 package com.nastynick.installationworks.presenter;
 
+import com.nastynick.installationworks.di.app.ExceptionLogManager;
 import com.nastynick.installationworks.interactor.AuthUseCase;
 import com.nastynick.installationworks.view.StarterView;
 
@@ -11,13 +12,14 @@ import io.reactivex.observers.DisposableObserver;
 import okhttp3.ResponseBody;
 
 public class StarterPresenter {
-    AuthUseCase authUseCase;
-
-    StarterView starterView;
+    private AuthUseCase authUseCase;
+    private StarterView starterView;
+    private ExceptionLogManager exceptionLogManager;
 
     @Inject
-    public StarterPresenter(AuthUseCase authUseCase) {
+    public StarterPresenter(AuthUseCase authUseCase, ExceptionLogManager exceptionLogManager) {
         this.authUseCase = authUseCase;
+        this.exceptionLogManager = exceptionLogManager;
     }
 
     public void setStarterView(StarterView starterView) {
@@ -38,6 +40,8 @@ public class StarterPresenter {
 
         @Override
         public void onError(Throwable e) {
+            exceptionLogManager.addException(e);
+
             if (e instanceof UnknownHostException) {
                 starterView.userLoggedIn();
             } else starterView.userNotLoggedIn();

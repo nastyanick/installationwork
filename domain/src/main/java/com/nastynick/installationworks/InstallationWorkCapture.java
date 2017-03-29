@@ -1,5 +1,7 @@
 package com.nastynick.installationworks;
 
+import com.nastynick.installationworks.entity.InstallationWork;
+
 import java.io.File;
 
 //TODO replace with realm data

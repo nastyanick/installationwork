@@ -1,15 +1,19 @@
 package com.nastynick.installationworks.repository;
 
-import com.nastynick.installationworks.model.InstallationWorkData;
+import com.nastynick.installationworks.entity.InstallationWork;
 
-import javax.inject.Inject;
+import io.realm.Realm;
 
 public class InstallationWorksRepository {
-    @Inject
-    public InstallationWorksRepository() {
+
+    public void remove(InstallationWork installationWork) {
+        installationWork.deleteFromRealm();
     }
 
-    public void remove(InstallationWorkData installationWorkData) {
-        installationWorkData.deleteFromRealm();
+    public void save(InstallationWork installationWork) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        realm.copyToRealm(installationWork);
+        realm.commitTransaction();
     }
 }

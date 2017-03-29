@@ -1,7 +1,7 @@
 
 package com.nastynick.installationworks.di;
 
-import com.nastynick.installationworks.PostExecutionThread;
+import com.nastynick.installationworks.executor.PostExecutionThread;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

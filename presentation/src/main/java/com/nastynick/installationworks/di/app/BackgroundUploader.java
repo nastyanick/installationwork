@@ -1,0 +1,54 @@
+package com.nastynick.installationworks.di.app;
+
+import android.content.Context;
+
+import com.nastynick.installationworks.R;
+import com.nastynick.installationworks.entity.InstallationWork;
+import com.nastynick.installationworks.interactor.AbsObserver;
+import com.nastynick.installationworks.interactor.UploadFileUseCase;
+import com.nastynick.installationworks.mapper.InstallationWorkQrCodeMapper;
+
+import java.io.File;
+
+import javax.inject.Inject;
+
+import io.reactivex.Observable;
+import io.realm.Realm;
+import okhttp3.ResponseBody;
+
+public class BackgroundUploader {
+    @Inject
+    protected UploadFileUseCase uploadFileUseCase;
+    @Inject
+    protected InstallationWorkQrCodeMapper mapper;
+    @Inject
+    protected Context context;
+
+    @Inject
+    public BackgroundUploader() {
+    }
+
+
+    void uploadFailed() {
+        Realm realm = Realm.getDefaultInstance();
+        Observable.just(realm.where(InstallationWork.class).findAll())
+                .flatMapIterable(urls -> urls)
+                .subscribe(this::uploadInstallationWork);
+    }
+
+    private void uploadInstallationWork(InstallationWork installationWork) {
+        uploadFileUseCase.uploadFile(new AbsObserver<ResponseBody>() {
+                                         @Override
+                                         public void onError(Throwable e) {
+                                             super.onError(e);
+                                         }
+
+                                         @Override
+                                         public void onComplete() {
+                                             super.onComplete();
+                                         }
+                                     }, new AbsObserver<>(),
+                mapper.getInstallationWorkDirectories(context.getString(R.string.installation_work_root), installationWork),
+                new File(installationWork.getFilePath()));
+    }
+}

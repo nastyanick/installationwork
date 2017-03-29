@@ -1,4 +1,4 @@
-package com.nastynick.installationworks;
+package com.nastynick.installationworks.executor;
 
 import io.reactivex.Scheduler;
 

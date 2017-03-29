@@ -1,6 +1,6 @@
 package com.nastynick.installationworks.interactor;
 
-import com.nastynick.installationworks.PostExecutionThread;
+import com.nastynick.installationworks.executor.PostExecutionThread;
 import com.nastynick.installationworks.repository.CredentialsRepository;
 
 import javax.inject.Inject;

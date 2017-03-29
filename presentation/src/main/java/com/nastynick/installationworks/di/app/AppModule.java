@@ -5,8 +5,8 @@ import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.nastynick.installationworks.PostExecutionThread;
 import com.nastynick.installationworks.di.UIThread;
+import com.nastynick.installationworks.executor.PostExecutionThread;
 
 import java.util.concurrent.TimeUnit;
 
@@ -60,6 +60,12 @@ public class AppModule {
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
+    }
+
+    @Provides
+    @Singleton
+    public ExceptionLogManager exceptionLogManager(Context context) {
+        return new ExceptionLogManager(context);
     }
 
     private OkHttpClient okHttpClient(SharedPreferences sharedPreferences) {

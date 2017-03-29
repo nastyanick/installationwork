@@ -1,6 +1,7 @@
 package com.nastynick.installationworks.presenter;
 
 import com.nastynick.installationworks.R;
+import com.nastynick.installationworks.di.app.ExceptionLogManager;
 import com.nastynick.installationworks.interactor.AuthUseCase;
 import com.nastynick.installationworks.view.LoginView;
 
@@ -16,10 +17,12 @@ import retrofit2.HttpException;
 public class LoginPresenter {
     private final AuthUseCase authUseCase;
     private LoginView loginView;
+    private ExceptionLogManager exceptionLogManager;
 
     @Inject
-    LoginPresenter(AuthUseCase authUseCase) {
+    LoginPresenter(AuthUseCase authUseCase, ExceptionLogManager exceptionLogManager) {
         this.authUseCase = authUseCase;
+        this.exceptionLogManager = exceptionLogManager;
     }
 
     public void setView(LoginView loginView) {
@@ -42,6 +45,8 @@ public class LoginPresenter {
 
         @Override
         public void onError(Throwable e) {
+            exceptionLogManager.addException(e);
+
             if (e instanceof HttpException) {
                 int code = ((HttpException) e).code();
                 if (HttpURLConnection.HTTP_UNAUTHORIZED == code) {

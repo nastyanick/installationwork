@@ -19,9 +19,11 @@
     <string name="installation_work.photo.processing.message">Пожалуйста, подождите</string>
     <string name="installation_work.photo.saved">Изображение успешно загружено на устройство</string>
     <string name="installation_work.photo.uploaded">Изображение успешно загружено на Яндекс Диск</string>
+    <string name="installation_work.upload.warning">Нет стабильного соединения. Изображение будет загружено позже</string>
 
     <string name="settings">Настройки</string>
     <string name="settings.logout">Выйти из аккаунта</string>
+    <string name="settings.send_logs">Загрузить файл логов ошибок</string>
     <string name="settings.photo_rezolution">Разрешение фотографий</string>
     <string name="settings.photo_rezolution.low">Низкое качество (компактный размер фотографий)</string>
     <string name="settings.photo_rezolution.high">Высокое качество (большой размер фотографий)</string>

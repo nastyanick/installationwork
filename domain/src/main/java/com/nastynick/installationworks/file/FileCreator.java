@@ -1,11 +1,11 @@
-package com.nastynick.installationworks;
+package com.nastynick.installationworks.file;
 
 import android.os.Environment;
 import android.support.annotation.NonNull;
 
 import java.io.File;
 
-public class InstallationFileCreator {
+public class FileCreator {
     public static File createFile(String fileName, String[] directoryNames) {
         File directory = null;
         for (String directoryName : directoryNames) {

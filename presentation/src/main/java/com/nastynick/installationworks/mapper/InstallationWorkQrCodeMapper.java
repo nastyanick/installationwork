@@ -2,8 +2,9 @@ package com.nastynick.installationworks.mapper;
 
 import android.content.Context;
 
-import com.nastynick.installationworks.InstallationWork;
 import com.nastynick.installationworks.R;
+import com.nastynick.installationworks.entity.InstallationWork;
+import com.nastynick.installationworks.repository.InstallationWorksRepository;
 
 import java.util.Calendar;
 
@@ -17,6 +18,8 @@ public class InstallationWorkQrCodeMapper {
     private static final int CONTRACTOR_CODE = 4;
     private static final int MATERIAL_NAME = 5;
     private static final int ADDRESS = 6;
+    @Inject
+    protected InstallationWorksRepository installationWorksRepository;
     private Context context;
 
     @Inject
@@ -37,6 +40,7 @@ public class InstallationWorkQrCodeMapper {
             installationWork.setMaterialName(installationWorkFields[MATERIAL_NAME]);
             installationWork.setAddress(installationWorkFields[ADDRESS]);
             installationWork.setTitle(getTitle(installationWork.getConstructionNumber(), installationWork.getAddress()));
+            installationWorksRepository.save(installationWork);
             return installationWork;
         } catch (RuntimeException e) {
             return null;

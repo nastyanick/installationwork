@@ -1,8 +1,8 @@
 package com.nastynick.installationworks.interactor;
 
-import com.nastynick.installationworks.InstallationFileCreator;
-import com.nastynick.installationworks.PostExecutionThread;
-import com.nastynick.installationworks.model.InstallationWorkData;
+import com.nastynick.installationworks.entity.InstallationWork;
+import com.nastynick.installationworks.executor.PostExecutionThread;
+import com.nastynick.installationworks.file.FileCreator;
 import com.nastynick.installationworks.repository.InstallationWorksRepository;
 
 import java.io.File;
@@ -13,7 +13,6 @@ import javax.inject.Inject;
 import io.reactivex.Observer;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
-import io.realm.Realm;
 import okhttp3.ResponseBody;
 import retrofit2.HttpException;
 
@@ -21,13 +20,16 @@ public class UploadFileUseCase extends UseCase {
     private InstallationWorksRepository installationWorksRepository;
 
     @Inject
-    public UploadFileUseCase(PostExecutionThread postExecutionThread , InstallationWorksRepository installationWorksRepository) {
+    public UploadFileUseCase(PostExecutionThread postExecutionThread, InstallationWorksRepository installationWorksRepository) {
         this.installationWorksRepository = installationWorksRepository;
         this.postExecutionThread = postExecutionThread;
     }
 
-    public File createFile(String[] directories, String fileName) {
-        return InstallationFileCreator.createFile(fileName, directories);
+    public File createFile(InstallationWork installationWork, String[] directories, String fileName) {
+        File file = FileCreator.createFile(fileName, directories);
+        installationWork.setFilePath(file.getAbsolutePath());
+        installationWorksRepository.save(installationWork);
+        return file;
     }
 
     public void uploadFile(DisposableObserver<ResponseBody> uploadObserver, Observer<Integer> progressObserver, String[] directories, File imageFile) {
@@ -40,8 +42,8 @@ public class UploadFileUseCase extends UseCase {
                 .subscribeWith(new UploadObserver(directories, depths, uploadObserver, progressObserver, imageFile));
     }
 
-    public void removeUploaded(InstallationWorkData installationWorkData) {
-        installationWorksRepository.remove(installationWorkData);
+    public void removeUploaded(InstallationWork installationWork) {
+        installationWorksRepository.remove(installationWork);
     }
 
     private class UploadObserver extends DisposableObserver<ResponseBody> {

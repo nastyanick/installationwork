@@ -1,8 +1,8 @@
-package com.nastynick.installationworks.model;
+package com.nastynick.installationworks.entity;
 
 import io.realm.RealmObject;
 
-public class InstallationWorkData extends RealmObject {
+public class InstallationWork extends RealmObject {
     private String year;
     private String contractorCode;
     private String orderNumber;
@@ -12,6 +12,7 @@ public class InstallationWorkData extends RealmObject {
     private String address;
     private String title;
     private String qrCode;
+    private String filePath;
 
     public String getYear() {
         return year;
@@ -83,5 +84,13 @@ public class InstallationWorkData extends RealmObject {
 
     public void setQrCode(String qrCode) {
         this.qrCode = qrCode;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
     }
 }

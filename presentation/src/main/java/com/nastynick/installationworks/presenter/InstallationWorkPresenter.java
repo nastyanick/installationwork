@@ -4,19 +4,20 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.v4.content.FileProvider;
 
-import com.nastynick.installationworks.InstallationWork;
 import com.nastynick.installationworks.InstallationWorkCapture;
-import com.nastynick.installationworks.PostExecutionThread;
 import com.nastynick.installationworks.R;
+import com.nastynick.installationworks.di.app.ConnectionTracker;
+import com.nastynick.installationworks.di.app.ExceptionLogManager;
+import com.nastynick.installationworks.entity.InstallationWork;
+import com.nastynick.installationworks.executor.PostExecutionThread;
+import com.nastynick.installationworks.interactor.AbsObserver;
 import com.nastynick.installationworks.interactor.SettingsUseCase;
 import com.nastynick.installationworks.interactor.UploadFileUseCase;
-import com.nastynick.installationworks.mapper.InstallationWorkDataMapper;
 import com.nastynick.installationworks.mapper.InstallationWorkQrCodeMapper;
 import com.nastynick.installationworks.util.WaterMarker;
 import com.nastynick.installationworks.view.InstallationWorkCaptureView;
 
 import java.io.File;
-import java.net.UnknownHostException;
 
 import javax.inject.Inject;
 
@@ -27,25 +28,28 @@ import okhttp3.ResponseBody;
 
 public class InstallationWorkPresenter {
     protected InstallationWorkCapture installationWorkCapture;
-    private InstallationWorkDataMapper dataMapper;
+    private ConnectionTracker connectionTracker;
     private InstallationWorkQrCodeMapper mapper;
     private PostExecutionThread postExecutionThread;
     private UploadFileUseCase uploadFileUseCase;
     private SettingsUseCase settings;
     private Context context;
     private InstallationWorkCaptureView installationWorkCaptureView;
+    private ExceptionLogManager exceptionLogManager;
 
     @Inject
     public InstallationWorkPresenter(InstallationWorkQrCodeMapper mapper, SettingsUseCase settings, Context context,
                                      PostExecutionThread postExecutionThread, UploadFileUseCase uploadFileUseCase,
-                                     InstallationWorkCapture installationWorkCapture, InstallationWorkDataMapper dataMapper) {
+                                     InstallationWorkCapture installationWorkCapture, ConnectionTracker connectionTracker,
+                                     ExceptionLogManager exceptionLogManager) {
         this.mapper = mapper;
         this.settings = settings;
         this.context = context;
         this.postExecutionThread = postExecutionThread;
         this.uploadFileUseCase = uploadFileUseCase;
         this.installationWorkCapture = installationWorkCapture;
-        this.dataMapper = dataMapper;
+        this.connectionTracker = connectionTracker;
+        this.exceptionLogManager = exceptionLogManager;
     }
 
     public void setInstallationWorkCaptureView(InstallationWorkCaptureView installationWorkCaptureView) {
@@ -60,8 +64,21 @@ public class InstallationWorkPresenter {
         } else installationWorkCapture.setInstallationWork(transform);
     }
 
+    public Uri createFile() {
+        String fileName = installationWorkCapture.getInstallationWork().getTitle();
+        String root = context.getResources().getString(R.string.installation_work_root);
+        String[] directories = mapper.getInstallationWorkDirectories(root, installationWorkCapture.getInstallationWork());
+        File file = uploadFileUseCase.createFile(installationWorkCapture.getInstallationWork(), directories, fileName);
+        installationWorkCapture.setFile(file);
+        return FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", file);
+    }
+
     public void installationWorkCaptured() {
         installationWorkCaptureView.showLoadingView(false);
+        saveFile();
+    }
+
+    private void saveFile() {
         Observable.just(installationWorkCapture.getFile())
                 .subscribeOn(Schedulers.io())
                 .doOnNext(file -> WaterMarker.resizeImage(file, settings.getWidth(),
@@ -69,16 +86,7 @@ public class InstallationWorkPresenter {
                 .subscribe();
     }
 
-    public Uri createFile() {
-        String fileName = installationWorkCapture.getInstallationWork().getTitle();
-        String root = context.getResources().getString(R.string.installation_work_root);
-        String[] directories = mapper.getInstallationWorkDirectories(root, installationWorkCapture.getInstallationWork());
-        File file = uploadFileUseCase.createFile(directories, fileName);
-        installationWorkCapture.setFile(file);
-        return FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", file);
-    }
-
-    private void uploadImage() {
+    private void uploadFile() {
         String root = context.getResources().getString(R.string.installation_work_root);
         Observable.just(installationWorkCaptureView)
                 .subscribeOn(Schedulers.io())
@@ -88,21 +96,28 @@ public class InstallationWorkPresenter {
                     installationWorkCaptureView.imageSuccess(R.string.installation_work_photo_saved);
                     installationWorkCaptureView.showLoadingView(true);
                 })
-                .subscribe(t -> {
-                    InstallationWork installationWork = installationWorkCapture.getInstallationWork();
-                    uploadFileUseCase.uploadFile(new FileUploadObservable(installationWork),
-                            new ProgressObserver(installationWork), mapper.getInstallationWorkDirectories(root, installationWork),
-                            installationWorkCapture.getFile());
-                });
+                .subscribe(t -> uploadFile(root));
     }
 
-    private class ImageObserver extends DisposableObserver {
-        @Override
-        public void onNext(Object value) {
+    private void uploadFile(String root) {
+        if (connectionTracker.isOnline()) {
+            InstallationWork installationWork = installationWorkCapture.getInstallationWork();
+            uploadFileUseCase.uploadFile(new FileUploadObservable(installationWork),
+                    new ProgressObserver(installationWork), mapper.getInstallationWorkDirectories(root, installationWork),
+                    installationWorkCapture.getFile());
+        } else {
+            exceptionLogManager.addException(new Throwable("No network connection. Image file uploading cancelled"));
+            installationWorkCaptureView.imageSuccess(R.string.installation_work_upload_warning);
+            installationWorkCaptureView.hideLoadingView();
+            installationWorkCaptureView.onFinish();
         }
+    }
 
+    private class ImageObserver extends AbsObserver {
         @Override
         public void onError(Throwable e) {
+            exceptionLogManager.addException(e);
+
             Observable.just(installationWorkCaptureView)
                     .observeOn(postExecutionThread.getScheduler())
                     .subscribe(t -> {
@@ -113,7 +128,7 @@ public class InstallationWorkPresenter {
 
         @Override
         public void onComplete() {
-            uploadImage();
+            uploadFile();
         }
     }
 
@@ -131,23 +146,19 @@ public class InstallationWorkPresenter {
 
         @Override
         public void onError(Throwable e) {
-            if (e instanceof UnknownHostException) {
-                saveInstallationWork(installationWork);
-            }
+            exceptionLogManager.addException(e);
+
             installationWorkCaptureView.hideLoadingView();
             installationWorkCaptureView.imageFailed();
         }
 
         @Override
         public void onComplete() {
+            uploadFileUseCase.removeUploaded(installationWork);
         }
     }
 
-    private void saveInstallationWork(InstallationWork installationWork) {
-        dataMapper.saveToData(installationWork);
-    }
-
-    private class FileUploadObservable extends DisposableObserver<ResponseBody> {
+    private class FileUploadObservable extends AbsObserver<ResponseBody> {
         InstallationWork installationWork;
 
         public FileUploadObservable(InstallationWork installationWork) {
@@ -155,18 +166,13 @@ public class InstallationWorkPresenter {
         }
 
         @Override
-        public void onNext(ResponseBody responseBody) {
-        }
-
-        @Override
         public void onError(Throwable e) {
-            if (e instanceof UnknownHostException) {
-                saveInstallationWork(installationWork);
-            }
+            exceptionLogManager.addException(e);
         }
 
         @Override
         public void onComplete() {
+            uploadFileUseCase.removeUploaded(installationWork);
             installationWorkCapture.clear();
             installationWorkCaptureView.imageSuccess(R.string.installation_work_photo_uploaded);
             installationWorkCaptureView.hideLoadingView();

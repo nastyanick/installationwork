@@ -1,7 +1,7 @@
 package com.nastynick.installationworks.interactor;
 
-import com.nastynick.installationworks.PostExecutionThread;
 import com.nastynick.installationworks.api.CloudApi;
+import com.nastynick.installationworks.executor.PostExecutionThread;
 
 import javax.inject.Inject;
 
