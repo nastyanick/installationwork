@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.nastynick.installationworks.PostExecutionThread;
 import com.nastynick.installationworks.di.UIThread;
+import com.nastynick.installationworks.net.BackgroundUploader;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
@@ -89,5 +90,11 @@ public class AppModule {
                 .writeTimeout(10, TimeUnit.MINUTES)
                 .addInterceptor(auth)
                 .build();
+    }
+
+    @Provides
+    @Singleton
+    public BackgroundUploader backgroundUploader() {
+        return new BackgroundUploader();
     }
 }

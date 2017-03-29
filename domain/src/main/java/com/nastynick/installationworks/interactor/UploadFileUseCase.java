@@ -2,6 +2,8 @@ package com.nastynick.installationworks.interactor;
 
 import com.nastynick.installationworks.InstallationFileCreator;
 import com.nastynick.installationworks.PostExecutionThread;
+import com.nastynick.installationworks.model.InstallationWorkData;
+import com.nastynick.installationworks.repository.InstallationWorksRepository;
 
 import java.io.File;
 import java.net.HttpURLConnection;
@@ -11,12 +13,16 @@ import javax.inject.Inject;
 import io.reactivex.Observer;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import io.realm.Realm;
 import okhttp3.ResponseBody;
 import retrofit2.HttpException;
 
 public class UploadFileUseCase extends UseCase {
+    private InstallationWorksRepository installationWorksRepository;
+
     @Inject
-    public UploadFileUseCase(PostExecutionThread postExecutionThread) {
+    public UploadFileUseCase(PostExecutionThread postExecutionThread , InstallationWorksRepository installationWorksRepository) {
+        this.installationWorksRepository = installationWorksRepository;
         this.postExecutionThread = postExecutionThread;
     }
 
@@ -32,6 +38,10 @@ public class UploadFileUseCase extends UseCase {
         cloudApi.createDirectory(directoryName)
                 .subscribeOn(Schedulers.io())
                 .subscribeWith(new UploadObserver(directories, depths, uploadObserver, progressObserver, imageFile));
+    }
+
+    public void removeUploaded(InstallationWorkData installationWorkData) {
+        installationWorksRepository.remove(installationWorkData);
     }
 
     private class UploadObserver extends DisposableObserver<ResponseBody> {
