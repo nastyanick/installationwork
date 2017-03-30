@@ -30,6 +30,7 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
     public static final int PERMISSION_CAMERA = 300;
     public static final int PERMISSION_EXTERNAL_STORAGE = 400;
     public static final String QR_CODE = "qrcode";
+    public static final String NEED_MEMORY_CHECK = "needMemoryCheck";
 
     @Inject
     protected InstallationWorkPresenter installationWorkPresenter;
@@ -44,7 +45,10 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
         getAppComponent().inject(this);
         installationWorkPresenter.setInstallationWorkCaptureView(this);
 
-        installationWorkPresenter.checkMemorySize();
+        Intent intent = getIntent();
+        if (intent.getBooleanExtra(NEED_MEMORY_CHECK, false)) {
+            installationWorkPresenter.checkMemorySize();
+        }
     }
 
     @Override

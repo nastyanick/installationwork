@@ -44,7 +44,7 @@ android {
         variant.outputs.each { output ->
             def file = output.outputFile
             def versionName = android.defaultConfig.versionName
-            def fileName = appName + "-" + versionName + "-" + variant.buildType.name + ".apk"
+            def fileName = appName + "-" + versionName + ".apk"
             output.outputFile = new File(file.parent, fileName)
         }
     }

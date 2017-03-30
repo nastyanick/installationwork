@@ -1,5 +1,6 @@
 package com.nastynick.installationworks.view.activty;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
@@ -28,7 +29,9 @@ public class SplashActivity extends BaseActivity implements StarterView {
 
     @Override
     public void userLoggedIn() {
-        startActivity(InstallationWorkCaptureActivity.class);
+        Intent intent = new Intent(this, InstallationWorkCaptureActivity.class);
+        intent.putExtra(InstallationWorkCaptureActivity.NEED_MEMORY_CHECK, true);
+        startActivity(intent);
         finish();
     }
 
