@@ -43,17 +43,17 @@ public class BackgroundUploader {
     private void uploadInstallationWork(InstallationWork installationWork) {
         Toast.makeText(context, R.string.installation_work_upload, Toast.LENGTH_SHORT).show();
         processFileUseCase.uploadFile(new AbsObserver<ResponseBody>() {
-                                         @Override
-                                         public void onError(Throwable e) {
-                                             super.onError(e);
-                                         }
+                                          @Override
+                                          public void onError(Throwable e) {
+                                              super.onError(e);
+                                          }
 
-                                         @Override
-                                         public void onComplete() {
-                                             installationWorksRepository.remove(installationWork);
-                                             super.onComplete();
-                                         }
-                                     }, new AbsObserver<>(),
+                                          @Override
+                                          public void onComplete() {
+                                              installationWorksRepository.remove(installationWork);
+                                              super.onComplete();
+                                          }
+                                      }, new AbsObserver<>(),
                 mapper.getInstallationWorkDirectories(context.getString(R.string.installation_work_root), installationWork),
                 new File(installationWork.getFilePath()));
     }
