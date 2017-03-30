@@ -32,7 +32,6 @@ public class BackgroundUploader {
     public BackgroundUploader() {
     }
 
-
     void uploadFailed() {
         Realm realm = Realm.getDefaultInstance();
         Observable.just(realm.where(InstallationWork.class).findAll())

@@ -9,7 +9,9 @@ public class InstallationWorksRepository {
     public void remove(InstallationWork installationWork) {
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
-        installationWork.deleteFromRealm();
+        if (installationWork.isValid()) {
+            installationWork.deleteFromRealm();
+        }
         realm.commitTransaction();
     }
 
