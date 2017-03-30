@@ -37,7 +37,7 @@ public class QrReaderActivity extends BaseActivity implements ZXingScannerView.R
 
     @Override
     public void handleResult(Result rawResult) {
-//        beep();
+        beep();
         Intent intent = new Intent();
         intent.putExtra(InstallationWorkCaptureActivity.QR_CODE, rawResult.getText());
         setResult(RESULT_OK, intent);

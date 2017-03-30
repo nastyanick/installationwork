@@ -1,5 +1,6 @@
 package com.nastynick.installationworks.view.activty;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
@@ -10,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.crashlytics.android.Crashlytics;
 import com.nastynick.installationworks.R;
 import com.nastynick.installationworks.databinding.ActivitySettingsBinding;
 import com.nastynick.installationworks.di.app.ExceptionLogManager;
@@ -70,7 +72,11 @@ public class SettingsActivity extends BaseActivity implements SettingsView {
         sendIntent.setAction(Intent.ACTION_SEND);
         sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
         sendIntent.setType("file/*");
-        startActivity(sendIntent);
+        try {
+            startActivity(sendIntent);
+        } catch (ActivityNotFoundException e) {
+            Crashlytics.logException(e);
+        }
     }
 
     public void highResolutionChecked(View view) {

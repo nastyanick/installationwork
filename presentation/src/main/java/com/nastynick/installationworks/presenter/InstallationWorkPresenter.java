@@ -13,8 +13,8 @@ import com.nastynick.installationworks.entity.InstallationWork;
 import com.nastynick.installationworks.executor.PostExecutionThread;
 import com.nastynick.installationworks.file.FileManager;
 import com.nastynick.installationworks.interactor.AbsObserver;
-import com.nastynick.installationworks.interactor.SettingsUseCase;
 import com.nastynick.installationworks.interactor.ProcessFileUseCase;
+import com.nastynick.installationworks.interactor.SettingsUseCase;
 import com.nastynick.installationworks.mapper.InstallationWorkQrCodeMapper;
 import com.nastynick.installationworks.util.MemoryUtil;
 import com.nastynick.installationworks.util.WaterMarker;
@@ -123,7 +123,7 @@ public class InstallationWorkPresenter {
     }
 
     public void checkMemorySize() {
-        if (MemoryUtil.getAvailableMemorySize() < 500) {
+        if (MemoryUtil.getAvailableMemorySize() < 100) {
             installationWorkCaptureView.showMemoryCleanerDialog();
         }
     }
