@@ -10,6 +10,8 @@ import java.util.Calendar;
 
 import javax.inject.Inject;
 
+import io.realm.Realm;
+
 public class InstallationWorkQrCodeMapper {
     private static final String DELIMITER = "\\|+";
     private static final int ORDER_NUMBER = 0;
@@ -28,23 +30,28 @@ public class InstallationWorkQrCodeMapper {
     }
 
     public InstallationWork transform(String qrCode) {
-        try {
-            String[] installationWorkFields = qrCode.split(DELIMITER);
-            InstallationWork installationWork = new InstallationWork();
-            installationWork.setQrCode(qrCode);
-            installationWork.setYear(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
-            installationWork.setOrderNumber(installationWorkFields[ORDER_NUMBER]);
-            installationWork.setConstructionNumber(installationWorkFields[CONSTRUCTION_NUMBER]);
-            installationWork.setDate(installationWorkFields[DATE]);
-            installationWork.setContractorCode(installationWorkFields[CONTRACTOR_CODE]);
-            installationWork.setMaterialName(installationWorkFields[MATERIAL_NAME]);
-            installationWork.setAddress(installationWorkFields[ADDRESS]);
-            installationWork.setTitle(getTitle(installationWork.getConstructionNumber(), installationWork.getAddress()));
-            installationWorksRepository.save(installationWork);
-            return installationWork;
-        } catch (RuntimeException e) {
-            return null;
-        }
+//        try {
+        String[] installationWorkFields = qrCode.split(DELIMITER);
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        InstallationWork installationWork = new InstallationWork();
+        installationWork.setQrCode(qrCode);
+        installationWork.setYear(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
+        installationWork.setOrderNumber(installationWorkFields[ORDER_NUMBER]);
+        installationWork.setConstructionNumber(installationWorkFields[CONSTRUCTION_NUMBER]);
+        installationWork.setDate(installationWorkFields[DATE]);
+        installationWork.setContractorCode(installationWorkFields[CONTRACTOR_CODE]);
+        installationWork.setMaterialName(installationWorkFields[MATERIAL_NAME]);
+        installationWork.setAddress(installationWorkFields[ADDRESS]);
+        installationWork.setTitle(getTitle(installationWork.getConstructionNumber(), installationWork.getAddress()));
+        realm.copyToRealmOrUpdate(installationWork);
+        realm.commitTransaction();
+//        installationWorksRepository.save(installationWork);
+        return installationWork;
+//        }
+//        catch (RuntimeException e) {
+//            return null;
+//        }
     }
 
     private String getTitle(String constructionNumber, String address) {

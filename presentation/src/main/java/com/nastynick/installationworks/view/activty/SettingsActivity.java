@@ -67,7 +67,7 @@ public class SettingsActivity extends BaseActivity implements SettingsView {
         Uri uri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider", file);
 
         Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_GET_CONTENT);
+        sendIntent.setAction(Intent.ACTION_SEND);
         sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
         sendIntent.setType("file/*");
         startActivity(sendIntent);

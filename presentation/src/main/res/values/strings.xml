@@ -17,9 +17,10 @@
     <string name="installation_work.photo.processing.title.saving">Обработка фотографии…</string>
     <string name="installation_work.photo.processing.title.uploading">Загрузка на Яндекс Диск</string>
     <string name="installation_work.photo.processing.message">Пожалуйста, подождите</string>
-    <string name="installation_work.photo.saved">Изображение успешно загружено на устройство</string>
-    <string name="installation_work.photo.uploaded">Изображение успешно загружено на Яндекс Диск</string>
-    <string name="installation_work.upload.warning">Нет стабильного соединения. Изображение будет загружено позже</string>
+    <string name="installation_work.photo.saved">Фотография успешно загружена на устройство</string>
+    <string name="installation_work.photo.uploaded">Фотография успешно загружена на Яндекс Диск</string>
+    <string name="installation_work.upload.warning">Нет стабильного соединения. Фотография будет загружена на Яндекс Диск позже</string>
+    <string name="installation_work.upload">Ранее сделанная фотография загружается на Яндекс Диск…</string>
 
     <string name="settings">Настройки</string>
     <string name="settings.logout">Выйти из аккаунта</string>

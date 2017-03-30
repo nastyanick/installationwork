@@ -22,7 +22,6 @@ import java.io.File;
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
-import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 
@@ -113,6 +112,13 @@ public class InstallationWorkPresenter {
         }
     }
 
+    private void uploadFailed(Throwable e) {
+        exceptionLogManager.addException(e);
+
+        installationWorkCaptureView.hideLoadingView();
+        installationWorkCaptureView.imageFailed();
+    }
+
     private class ImageObserver extends AbsObserver {
         @Override
         public void onError(Throwable e) {
@@ -132,7 +138,7 @@ public class InstallationWorkPresenter {
         }
     }
 
-    private class ProgressObserver extends DisposableObserver<Integer> {
+    private class ProgressObserver extends AbsObserver<Integer> {
         InstallationWork installationWork;
 
         public ProgressObserver(InstallationWork installationWork) {
@@ -146,15 +152,7 @@ public class InstallationWorkPresenter {
 
         @Override
         public void onError(Throwable e) {
-            exceptionLogManager.addException(e);
-
-            installationWorkCaptureView.hideLoadingView();
-            installationWorkCaptureView.imageFailed();
-        }
-
-        @Override
-        public void onComplete() {
-            uploadFileUseCase.removeUploaded(installationWork);
+            uploadFailed(e);
         }
     }
 
@@ -167,12 +165,12 @@ public class InstallationWorkPresenter {
 
         @Override
         public void onError(Throwable e) {
-            exceptionLogManager.addException(e);
+            uploadFailed(e);
         }
 
         @Override
         public void onComplete() {
-            uploadFileUseCase.removeUploaded(installationWork);
+            uploadFileUseCase.removeCached(installationWork);
             installationWorkCapture.clear();
             installationWorkCaptureView.imageSuccess(R.string.installation_work_photo_uploaded);
             installationWorkCaptureView.hideLoadingView();

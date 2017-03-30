@@ -1,12 +1,14 @@
 package com.nastynick.installationworks.di.app;
 
 import android.content.Context;
+import android.widget.Toast;
 
 import com.nastynick.installationworks.R;
 import com.nastynick.installationworks.entity.InstallationWork;
 import com.nastynick.installationworks.interactor.AbsObserver;
 import com.nastynick.installationworks.interactor.UploadFileUseCase;
 import com.nastynick.installationworks.mapper.InstallationWorkQrCodeMapper;
+import com.nastynick.installationworks.repository.InstallationWorksRepository;
 
 import java.io.File;
 
@@ -23,6 +25,8 @@ public class BackgroundUploader {
     protected InstallationWorkQrCodeMapper mapper;
     @Inject
     protected Context context;
+    @Inject
+    protected InstallationWorksRepository installationWorksRepository;
 
     @Inject
     public BackgroundUploader() {
@@ -33,10 +37,12 @@ public class BackgroundUploader {
         Realm realm = Realm.getDefaultInstance();
         Observable.just(realm.where(InstallationWork.class).findAll())
                 .flatMapIterable(urls -> urls)
+                .filter(installationWork -> installationWork.getFilePath() != null)
                 .subscribe(this::uploadInstallationWork);
     }
 
     private void uploadInstallationWork(InstallationWork installationWork) {
+        Toast.makeText(context, R.string.installation_work_upload, Toast.LENGTH_SHORT).show();
         uploadFileUseCase.uploadFile(new AbsObserver<ResponseBody>() {
                                          @Override
                                          public void onError(Throwable e) {
@@ -45,6 +51,7 @@ public class BackgroundUploader {
 
                                          @Override
                                          public void onComplete() {
+                                             installationWorksRepository.remove(installationWork);
                                              super.onComplete();
                                          }
                                      }, new AbsObserver<>(),

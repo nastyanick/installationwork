@@ -1,6 +1,7 @@
 package com.nastynick.installationworks.entity;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 public class InstallationWork extends RealmObject {
     private String year;
@@ -11,6 +12,7 @@ public class InstallationWork extends RealmObject {
     private String constructionNumber;
     private String address;
     private String title;
+    @PrimaryKey
     private String qrCode;
     private String filePath;
 

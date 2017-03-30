@@ -27,8 +27,7 @@ public class UploadFileUseCase extends UseCase {
 
     public File createFile(InstallationWork installationWork, String[] directories, String fileName) {
         File file = FileCreator.createFile(fileName, directories);
-        installationWork.setFilePath(file.getAbsolutePath());
-        installationWorksRepository.save(installationWork);
+        installationWorksRepository.save(installationWork, file.getAbsolutePath());
         return file;
     }
 
@@ -39,21 +38,25 @@ public class UploadFileUseCase extends UseCase {
     private void uploadDirectory(String[] directories, String directoryName, int depths, DisposableObserver<ResponseBody> uploadObserver, Observer<Integer> progressObserver, File imageFile) {
         cloudApi.createDirectory(directoryName)
                 .subscribeOn(Schedulers.io())
-                .subscribeWith(new UploadObserver(directories, depths, uploadObserver, progressObserver, imageFile));
+                .subscribeWith(new DirectoryObserver(directories, depths, uploadObserver, progressObserver, imageFile));
     }
 
     public void removeUploaded(InstallationWork installationWork) {
         installationWorksRepository.remove(installationWork);
     }
 
-    private class UploadObserver extends DisposableObserver<ResponseBody> {
+    public void removeCached(InstallationWork installationWork) {
+        installationWorksRepository.removeCached(installationWork);
+    }
+
+    private class DirectoryObserver extends DisposableObserver<ResponseBody> {
         String[] directories;
         int depths;
         DisposableObserver<ResponseBody> uploadObserver;
         Observer<Integer> progressObserver;
         File imageFile;
 
-        UploadObserver(String[] directories, int depths, DisposableObserver<ResponseBody> uploadObserver, Observer<Integer> progressObserver, File imageFile) {
+        DirectoryObserver(String[] directories, int depths, DisposableObserver<ResponseBody> uploadObserver, Observer<Integer> progressObserver, File imageFile) {
             this.directories = directories;
             this.depths = depths;
             this.uploadObserver = uploadObserver;
@@ -67,10 +70,12 @@ public class UploadFileUseCase extends UseCase {
 
         @Override
         public void onError(Throwable e) {
-            HttpException httpException = (HttpException) e;
-            if (HttpURLConnection.HTTP_BAD_METHOD == httpException.code()) {
-                createDirectory();
-            }
+            if (e instanceof HttpException) {
+                HttpException httpException = (HttpException) e;
+                if (HttpURLConnection.HTTP_BAD_METHOD == httpException.code()) {
+                    createDirectory();
+                }
+            } else uploadObserver.onError(e);
         }
 
         @Override
