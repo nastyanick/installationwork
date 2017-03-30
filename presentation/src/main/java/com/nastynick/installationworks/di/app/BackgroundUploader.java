@@ -6,7 +6,7 @@ import android.widget.Toast;
 import com.nastynick.installationworks.R;
 import com.nastynick.installationworks.entity.InstallationWork;
 import com.nastynick.installationworks.interactor.AbsObserver;
-import com.nastynick.installationworks.interactor.UploadFileUseCase;
+import com.nastynick.installationworks.interactor.ProcessFileUseCase;
 import com.nastynick.installationworks.mapper.InstallationWorkQrCodeMapper;
 import com.nastynick.installationworks.repository.InstallationWorksRepository;
 
@@ -20,7 +20,7 @@ import okhttp3.ResponseBody;
 
 public class BackgroundUploader {
     @Inject
-    protected UploadFileUseCase uploadFileUseCase;
+    protected ProcessFileUseCase processFileUseCase;
     @Inject
     protected InstallationWorkQrCodeMapper mapper;
     @Inject
@@ -43,7 +43,7 @@ public class BackgroundUploader {
 
     private void uploadInstallationWork(InstallationWork installationWork) {
         Toast.makeText(context, R.string.installation_work_upload, Toast.LENGTH_SHORT).show();
-        uploadFileUseCase.uploadFile(new AbsObserver<ResponseBody>() {
+        processFileUseCase.uploadFile(new AbsObserver<ResponseBody>() {
                                          @Override
                                          public void onError(Throwable e) {
                                              super.onError(e);

@@ -15,4 +15,8 @@ public interface InstallationWorkCaptureView {
     void setProgress(Integer progress);
 
     void onFinish();
+
+    void showMemoryCleanerDialog();
+
+    void memoryCleaned();
 }

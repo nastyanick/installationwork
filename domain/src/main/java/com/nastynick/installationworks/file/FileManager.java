@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 
 import java.io.File;
 
-public class FileCreator {
+public class FileManager {
     public static File createFile(String fileName, String[] directoryNames) {
         File directory = null;
         for (String directoryName : directoryNames) {
@@ -21,5 +21,22 @@ public class FileCreator {
             directory.mkdirs();
         }
         return directory;
+    }
+
+    public static boolean clear(File path) {
+        if (path.exists()) {
+            File[] files = path.listFiles();
+            if (files == null) {
+                return path.delete();
+            }
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    clear(file);
+                } else {
+                    file.delete();
+                }
+            }
+        }
+        return (path.delete());
     }
 }

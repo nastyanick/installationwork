@@ -25,10 +25,8 @@ public class LoginActivity extends BaseActivity implements LoginView {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_login);
         loginPresenter.setView(this);
 
-//        if (BuildConfig.DEBUG) {
-//            binding.login.setText("svt-app");
-//            binding.password.setText("123SmartApp");
-//        }
+//        binding.login.setText("svt-app");
+//        binding.password.setText("123SmartApp");
     }
 
     public void login(View v) {

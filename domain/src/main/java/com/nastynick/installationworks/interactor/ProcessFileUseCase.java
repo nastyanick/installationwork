@@ -2,7 +2,7 @@ package com.nastynick.installationworks.interactor;
 
 import com.nastynick.installationworks.entity.InstallationWork;
 import com.nastynick.installationworks.executor.PostExecutionThread;
-import com.nastynick.installationworks.file.FileCreator;
+import com.nastynick.installationworks.file.FileManager;
 import com.nastynick.installationworks.repository.InstallationWorksRepository;
 
 import java.io.File;
@@ -16,17 +16,17 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 import retrofit2.HttpException;
 
-public class UploadFileUseCase extends UseCase {
+public class ProcessFileUseCase extends UseCase {
     private InstallationWorksRepository installationWorksRepository;
 
     @Inject
-    public UploadFileUseCase(PostExecutionThread postExecutionThread, InstallationWorksRepository installationWorksRepository) {
+    public ProcessFileUseCase(PostExecutionThread postExecutionThread, InstallationWorksRepository installationWorksRepository) {
         this.installationWorksRepository = installationWorksRepository;
         this.postExecutionThread = postExecutionThread;
     }
 
     public File createFile(InstallationWork installationWork, String[] directories, String fileName) {
-        File file = FileCreator.createFile(fileName, directories);
+        File file = FileManager.createFile(fileName, directories);
         installationWorksRepository.save(installationWork, file.getAbsolutePath());
         return file;
     }

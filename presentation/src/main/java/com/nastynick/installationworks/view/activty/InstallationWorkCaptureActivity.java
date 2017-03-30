@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 
 import com.nastynick.installationworks.R;
@@ -42,6 +43,23 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
         binding = DataBindingUtil.setContentView(this, R.layout.activity_installation_work_capture);
         getAppComponent().inject(this);
         installationWorkPresenter.setInstallationWorkCaptureView(this);
+
+        installationWorkPresenter.checkMemorySize();
+    }
+
+    @Override
+    public void showMemoryCleanerDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.memory_clear_title)
+                .setMessage(R.string.memory_clear_message)
+                .setPositiveButton(android.R.string.yes, (dialog, which) -> installationWorkPresenter.clearMemory())
+                .setNegativeButton(android.R.string.no, null)
+                .show();
+    }
+
+    @Override
+    public void memoryCleaned() {
+        toast(R.string.memory_clear_success);
     }
 
     public void onScanClick(View view) {
@@ -147,7 +165,7 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
     }
 
     private void checkPermissionAndTakePicture() {
-        if (PermissionChecker.checkPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, PERMISSION_EXTERNAL_STORAGE)) {
+        if (PermissionChecker.checkPermission(this, PERMISSION_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)) {
             dispatchTakePictureIntent();
         }
     }
