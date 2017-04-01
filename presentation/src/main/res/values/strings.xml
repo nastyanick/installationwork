@@ -24,6 +24,7 @@
 
     <string name="settings">Настройки</string>
     <string name="settings.logout">Выйти из аккаунта</string>
+    <string name="settings.pattern">%1$s (%2$s)</string>
     <string name="settings.send_logs">Загрузить файл логов ошибок</string>
     <string name="settings.photo_rezolution">Разрешение фотографий</string>
     <string name="settings.photo_rezolution.low">Низкое качество (компактный размер фотографий)</string>

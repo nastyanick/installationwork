@@ -33,4 +33,11 @@ public class InstallationWorksRepository {
         }
         realm.commitTransaction();
     }
+
+    public void removeAll() {
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        realm.where(InstallationWork.class).findAll().deleteAllFromRealm();
+        realm.commitTransaction();
+    }
 }

@@ -27,4 +27,8 @@ public class ResolutionRepository {
     public void setResolution(boolean isLow) {
         sharedPreferences.edit().putInt(WIDTH, isLow ? LOW_RESOLUTION_WIDTH : HIGH_RESOLUTION_WIDTH).apply();
     }
+
+    public void remove() {
+        sharedPreferences.edit().remove(WIDTH).apply();
+    }
 }

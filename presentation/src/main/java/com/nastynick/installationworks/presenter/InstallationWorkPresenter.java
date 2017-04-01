@@ -25,6 +25,7 @@ import java.io.File;
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 
@@ -94,7 +95,7 @@ public class InstallationWorkPresenter {
                 .subscribeOn(Schedulers.io())
                 .observeOn(postExecutionThread.getScheduler())
                 .doOnNext(t -> {
-                    installationWorkCaptureView.hideLoadingView();
+                    hideLoadingView();
                     installationWorkCaptureView.imageSuccess(R.string.installation_work_photo_saved);
                     installationWorkCaptureView.showLoadingView(true);
                 })
@@ -109,8 +110,8 @@ public class InstallationWorkPresenter {
                     installationWorkCapture.getFile());
         } else {
             exceptionLogManager.addException(new Throwable("No network connection. Image file uploading cancelled"));
+            hideLoadingView();
             installationWorkCaptureView.imageSuccess(R.string.installation_work_upload_warning);
-            installationWorkCaptureView.hideLoadingView();
             installationWorkCaptureView.onFinish();
         }
     }
@@ -118,8 +119,14 @@ public class InstallationWorkPresenter {
     private void uploadFailed(Throwable e) {
         exceptionLogManager.addException(e);
 
-        installationWorkCaptureView.hideLoadingView();
+        hideLoadingView();
         installationWorkCaptureView.imageFailed();
+    }
+
+    private void hideLoadingView() {
+        Observable.empty()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(empty -> installationWorkCaptureView.hideLoadingView());
     }
 
     public void checkMemorySize() {
@@ -145,7 +152,7 @@ public class InstallationWorkPresenter {
             Observable.just(installationWorkCaptureView)
                     .observeOn(postExecutionThread.getScheduler())
                     .subscribe(t -> {
-                        installationWorkCaptureView.hideLoadingView();
+                        hideLoadingView();
                         installationWorkCaptureView.imageFailed();
                     });
         }
@@ -190,8 +197,8 @@ public class InstallationWorkPresenter {
         public void onComplete() {
             processFileUseCase.removeCached(installationWork);
             installationWorkCapture.clear();
+            hideLoadingView();
             installationWorkCaptureView.imageSuccess(R.string.installation_work_photo_uploaded);
-            installationWorkCaptureView.hideLoadingView();
             installationWorkCaptureView.onFinish();
         }
     }

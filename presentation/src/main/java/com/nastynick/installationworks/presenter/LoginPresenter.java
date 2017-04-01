@@ -2,14 +2,19 @@ package com.nastynick.installationworks.presenter;
 
 import com.nastynick.installationworks.R;
 import com.nastynick.installationworks.di.app.ExceptionLogManager;
+import com.nastynick.installationworks.entity.CredentialsData;
+import com.nastynick.installationworks.interactor.AbsObserver;
 import com.nastynick.installationworks.interactor.AuthUseCase;
+import com.nastynick.installationworks.mapper.CredentialsModelDataMapper;
+import com.nastynick.installationworks.model.CredentialsModel;
 import com.nastynick.installationworks.view.LoginView;
 
 import java.net.HttpURLConnection;
+import java.net.UnknownHostException;
+import java.util.List;
 
 import javax.inject.Inject;
 
-import io.reactivex.observers.DisposableObserver;
 import okhttp3.ResponseBody;
 import retrofit2.HttpException;
 
@@ -18,11 +23,13 @@ public class LoginPresenter {
     private final AuthUseCase authUseCase;
     private LoginView loginView;
     private ExceptionLogManager exceptionLogManager;
+    private CredentialsModelDataMapper mapper;
 
     @Inject
-    LoginPresenter(AuthUseCase authUseCase, ExceptionLogManager exceptionLogManager) {
+    LoginPresenter(AuthUseCase authUseCase, ExceptionLogManager exceptionLogManager, CredentialsModelDataMapper mapper) {
         this.authUseCase = authUseCase;
         this.exceptionLogManager = exceptionLogManager;
+        this.mapper = mapper;
     }
 
     public void setView(LoginView loginView) {
@@ -37,12 +44,11 @@ public class LoginPresenter {
         authUseCase.checkCredentials(new LoginObservable());
     }
 
-    private class LoginObservable extends DisposableObserver<ResponseBody> {
+    public void setCredentials() {
+        authUseCase.loadCredentialsData(new CredentialsLoadObserver());
+    }
 
-        @Override
-        public void onNext(ResponseBody responseBody) {
-        }
-
+    private class LoginObservable extends AbsObserver<ResponseBody> {
         @Override
         public void onError(Throwable e) {
             exceptionLogManager.addException(e);
@@ -51,14 +57,26 @@ public class LoginPresenter {
                 int code = ((HttpException) e).code();
                 if (HttpURLConnection.HTTP_UNAUTHORIZED == code) {
                     loginView.fail(R.string.error_auth_unauthorized);
-                } else loginView.fail(R.string.error_auth);
-            }
-
+                }
+            } else if (e instanceof UnknownHostException) {
+                loginView.fail(R.string.error_auth_net_failed);
+            } else loginView.fail(R.string.error_auth);
         }
 
         @Override
         public void onComplete() {
             loginView.success();
+        }
+    }
+
+    private class CredentialsLoadObserver extends AbsObserver<List<CredentialsData>> {
+        @Override
+        public void onNext(List<CredentialsData> data) {
+            if (data != null && !data.isEmpty()) {
+                CredentialsModel credentialsModel = mapper.transform(data.get(0));
+                loginView.renderCredentials(credentialsModel);
+                loginView.renderCredentialsList(mapper.transform(data));
+            }
         }
     }
 }

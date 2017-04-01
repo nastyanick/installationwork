@@ -3,6 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+        <variable
+            name="credentials"
+            type="com.nastynick.installationworks.model.CredentialsModel" />
+    </data>
+
     <ScrollView
         android:id="@+id/a_login"
         android:layout_width="match_parent"
@@ -27,7 +34,7 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent" />
 
-            <EditText
+            <com.reginald.editspinner.EditSpinner
                 android:id="@+id/login"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -37,7 +44,11 @@
                 android:hint="@string/authorization.login.hint"
                 android:maxLines="1"
                 android:paddingBottom="8dp"
+                android:paddingLeft="40dp"
                 android:paddingTop="8dp"
+                android:text="@{credentials.login}"
+                app:dropDownDrawable="@drawable/vec_down"
+                app:dropDownDrawableSpacing="15dp"
                 app:layout_constraintLeft_toLeftOf="@+id/left_guideline"
                 app:layout_constraintRight_toLeftOf="@+id/right_guideline"
                 app:layout_constraintTop_toBottomOf="@+id/textView" />
@@ -54,6 +65,7 @@
                 android:maxLines="1"
                 android:paddingBottom="8dp"
                 android:paddingTop="8dp"
+                android:text="@{credentials.password}"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintLeft_toLeftOf="@+id/left_guideline"
                 app:layout_constraintRight_toLeftOf="@+id/right_guideline"

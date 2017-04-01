@@ -6,9 +6,8 @@ import com.nastynick.installationworks.executor.PostExecutionThread;
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
-import io.reactivex.observers.DisposableObserver;
+import io.reactivex.Observer;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.ResponseBody;
 
 public abstract class UseCase {
     @Inject
@@ -17,9 +16,9 @@ public abstract class UseCase {
     @Inject
     protected PostExecutionThread postExecutionThread;
 
-    protected void execute(DisposableObserver<ResponseBody> disposableObserver, Observable<ResponseBody> observable) {
+    protected <T> void execute(Observer<T> observer, Observable<T> observable) {
         observable.subscribeOn(Schedulers.io())
                 .observeOn(postExecutionThread.getScheduler())
-                .subscribeWith(disposableObserver);
+                .subscribeWith(observer);
     }
 }

@@ -1,11 +1,14 @@
 package com.nastynick.installationworks.interactor;
 
+import com.nastynick.installationworks.entity.CredentialsData;
 import com.nastynick.installationworks.executor.PostExecutionThread;
 import com.nastynick.installationworks.repository.CredentialsRepository;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
-import io.reactivex.observers.DisposableObserver;
+import io.reactivex.Observer;
 import okhttp3.ResponseBody;
 
 public class AuthUseCase extends UseCase {
@@ -18,8 +21,8 @@ public class AuthUseCase extends UseCase {
         this.postExecutionThread = postExecutionThread;
     }
 
-    public void checkCredentials(DisposableObserver<ResponseBody> disposableObserver) {
-        execute(disposableObserver, cloudApi.checkConnection());
+    public void checkCredentials(Observer<ResponseBody> credentialsCheckObserver) {
+        execute(credentialsCheckObserver, cloudApi.checkConnection());
     }
 
     public void saveCredentials(String login, String password) {
@@ -28,5 +31,17 @@ public class AuthUseCase extends UseCase {
 
     public boolean checkCredentialsExists() {
         return credentialsRepository.checkCredentialsExists();
+    }
+
+    public String login() {
+        return credentialsRepository.getLogin();
+    }
+
+    public String password() {
+        return credentialsRepository.getPassword();
+    }
+
+    public void loadCredentialsData(Observer<List<CredentialsData>> dataObserver) {
+        execute(dataObserver, credentialsRepository.credentialsData());
     }
 }

@@ -31,18 +31,14 @@ public class ProcessFileUseCase extends UseCase {
         return file;
     }
 
-    public void uploadFile(DisposableObserver<ResponseBody> uploadObserver, Observer<Integer> progressObserver, String[] directories, File imageFile) {
+    public void uploadFile(Observer<ResponseBody> uploadObserver, Observer<Integer> progressObserver, String[] directories, File imageFile) {
         uploadDirectory(directories, directories[0], 0, uploadObserver, progressObserver, imageFile);
     }
 
-    private void uploadDirectory(String[] directories, String directoryName, int depths, DisposableObserver<ResponseBody> uploadObserver, Observer<Integer> progressObserver, File imageFile) {
+    private void uploadDirectory(String[] directories, String directoryName, int depths, Observer<ResponseBody> uploadObserver, Observer<Integer> progressObserver, File imageFile) {
         cloudApi.createDirectory(directoryName)
                 .subscribeOn(Schedulers.io())
                 .subscribeWith(new DirectoryObserver(directories, depths, uploadObserver, progressObserver, imageFile));
-    }
-
-    public void removeUploaded(InstallationWork installationWork) {
-        installationWorksRepository.remove(installationWork);
     }
 
     public void removeCached(InstallationWork installationWork) {
@@ -52,11 +48,11 @@ public class ProcessFileUseCase extends UseCase {
     private class DirectoryObserver extends DisposableObserver<ResponseBody> {
         String[] directories;
         int depths;
-        DisposableObserver<ResponseBody> uploadObserver;
+        Observer<ResponseBody> uploadObserver;
         Observer<Integer> progressObserver;
         File imageFile;
 
-        DirectoryObserver(String[] directories, int depths, DisposableObserver<ResponseBody> uploadObserver, Observer<Integer> progressObserver, File imageFile) {
+        DirectoryObserver(String[] directories, int depths, Observer<ResponseBody> uploadObserver, Observer<Integer> progressObserver, File imageFile) {
             this.directories = directories;
             this.depths = depths;
             this.uploadObserver = uploadObserver;

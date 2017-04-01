@@ -15,7 +15,6 @@ import com.crashlytics.android.Crashlytics;
 import com.nastynick.installationworks.R;
 import com.nastynick.installationworks.databinding.ActivitySettingsBinding;
 import com.nastynick.installationworks.di.app.ExceptionLogManager;
-import com.nastynick.installationworks.repository.CredentialsRepository;
 import com.nastynick.installationworks.util.SettingsPresenter;
 import com.nastynick.installationworks.view.SettingsView;
 
@@ -24,9 +23,6 @@ import java.io.File;
 import javax.inject.Inject;
 
 public class SettingsActivity extends BaseActivity implements SettingsView {
-    @Inject
-    CredentialsRepository credentialsRepository;
-
     @Inject
     SettingsPresenter settingsPresenter;
 
@@ -43,6 +39,12 @@ public class SettingsActivity extends BaseActivity implements SettingsView {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_settings);
         getAppComponent().inject(this);
         settingsPresenter.setSettingsView(this);
+        settingsPresenter.setSettingAccout();
+    }
+
+    @Override
+    public void setSettingsAccount(String login) {
+        binding.logout.setText(login);
     }
 
     @Override
@@ -59,7 +61,7 @@ public class SettingsActivity extends BaseActivity implements SettingsView {
     }
 
     public void onLogoutClick(View view) {
-        credentialsRepository.clear();
+        settingsPresenter.logout();
         startActivity(LoginActivity.class);
         finish();
     }
