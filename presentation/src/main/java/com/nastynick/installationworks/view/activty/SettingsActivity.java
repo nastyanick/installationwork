@@ -62,8 +62,9 @@ public class SettingsActivity extends BaseActivity implements SettingsView {
 
     public void onLogoutClick(View view) {
         settingsPresenter.logout();
-        startActivity(LoginActivity.class);
-        finish();
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 
     public void onSendLogFileClick(View view) {
