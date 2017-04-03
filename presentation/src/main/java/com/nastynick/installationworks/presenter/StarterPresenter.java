@@ -7,6 +7,7 @@ import com.nastynick.installationworks.view.StarterView;
 import java.net.UnknownHostException;
 
 import javax.inject.Inject;
+import javax.net.ssl.SSLException;
 
 import io.reactivex.observers.DisposableObserver;
 import okhttp3.ResponseBody;
@@ -42,7 +43,7 @@ public class StarterPresenter {
         public void onError(Throwable e) {
             exceptionLogManager.addException(e);
 
-            if (e instanceof UnknownHostException) {
+            if (e instanceof UnknownHostException || e instanceof SSLException) {
                 starterView.userLoggedIn();
             } else starterView.userNotLoggedIn();
         }

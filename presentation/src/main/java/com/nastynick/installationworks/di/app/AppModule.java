@@ -89,6 +89,7 @@ public class AppModule {
                 .addInterceptor(logging)
                 .connectTimeout(10, TimeUnit.MINUTES)
                 .writeTimeout(10, TimeUnit.MINUTES)
+                .readTimeout(10, TimeUnit.MINUTES)
                 .addInterceptor(auth)
                 .build();
     }

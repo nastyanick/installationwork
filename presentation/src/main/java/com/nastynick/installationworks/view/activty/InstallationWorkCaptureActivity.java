@@ -113,7 +113,6 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
     @Override
     public void showLoadingView(boolean upload) {
         progressDialog = new ProgressDialog(this);
-        progressDialog.setCancelable(false);
         progressDialog.setTitle(upload ? R.string.installation_work_photo_processing_title_uploading :
                 R.string.installation_work_photo_processing_title_saving);
         progressDialog.setMessage(getResources().getString(R.string.installation_work_photo_processing_message));
@@ -187,13 +186,5 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
                 }
             }
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.setCancelable(true);
-            progressDialog.dismiss();
-        } else super.onBackPressed();
     }
 }

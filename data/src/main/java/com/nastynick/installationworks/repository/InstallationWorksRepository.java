@@ -7,37 +7,31 @@ import io.realm.Realm;
 public class InstallationWorksRepository {
 
     public void remove(InstallationWork installationWork) {
-        Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-        if (installationWork.isValid()) {
-            installationWork.deleteFromRealm();
-        }
-        realm.commitTransaction();
+        Realm.getDefaultInstance().executeTransaction(realm -> {
+            if (installationWork.isValid()) {
+                installationWork.deleteFromRealm();
+            }
+        });
     }
 
     public void save(InstallationWork installationWork, String filePath) {
-        Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-        installationWork.setFilePath(filePath);
-        realm.copyToRealmOrUpdate(installationWork);
-        realm.commitTransaction();
+        Realm.getDefaultInstance().executeTransaction(realm -> {
+            installationWork.setFilePath(filePath);
+            realm.copyToRealmOrUpdate(installationWork);
+        });
     }
 
     public void removeCached(InstallationWork installationWorkCached) {
-        Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-        InstallationWork installationWork = realm.where(InstallationWork.class).equalTo("qrCode",
-                installationWorkCached.getQrCode()).findFirst();
-        if (installationWork != null) {
-            installationWork.deleteFromRealm();
-        }
-        realm.commitTransaction();
+        Realm.getDefaultInstance().executeTransaction(realm -> {
+            InstallationWork installationWork = realm.where(InstallationWork.class).equalTo("qrCode",
+                    installationWorkCached.getQrCode()).findFirst();
+            if (installationWork != null) {
+                installationWork.deleteFromRealm();
+            }
+        });
     }
 
     public void removeAll() {
-        Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-        realm.where(InstallationWork.class).findAll().deleteAllFromRealm();
-        realm.commitTransaction();
+        Realm.getDefaultInstance().executeTransaction(realm -> realm.where(InstallationWork.class).findAll().deleteAllFromRealm());
     }
 }

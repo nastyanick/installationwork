@@ -2,6 +2,7 @@ package com.nastynick.installationworks.mapper;
 
 import android.content.Context;
 
+import com.crashlytics.android.Crashlytics;
 import com.nastynick.installationworks.R;
 import com.nastynick.installationworks.entity.InstallationWork;
 import com.nastynick.installationworks.repository.InstallationWorksRepository;
@@ -48,6 +49,7 @@ public class InstallationWorkQrCodeMapper {
             realm.commitTransaction();
             return installationWork;
         } catch (RuntimeException e) {
+            Crashlytics.logException(e);
             return null;
         }
     }
