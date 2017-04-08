@@ -33,8 +33,6 @@ public class InstallationWorkQrCodeMapper {
     public InstallationWork transform(String qrCode) {
         try {
             String[] installationWorkFields = qrCode.split(DELIMITER);
-            Realm realm = Realm.getDefaultInstance();
-            realm.beginTransaction();
             InstallationWork installationWork = new InstallationWork();
             installationWork.setQrCode(qrCode);
             installationWork.setYear(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
@@ -45,8 +43,7 @@ public class InstallationWorkQrCodeMapper {
             installationWork.setMaterialName(installationWorkFields[MATERIAL_NAME]);
             installationWork.setAddress(installationWorkFields[ADDRESS]);
             installationWork.setTitle(getTitle(installationWork.getConstructionNumber(), installationWork.getAddress()));
-            realm.copyToRealmOrUpdate(installationWork);
-            realm.commitTransaction();
+            Realm.getDefaultInstance().executeTransaction(realm -> realm.copyToRealmOrUpdate(installationWork));
             return installationWork;
         } catch (RuntimeException e) {
             Crashlytics.logException(e);

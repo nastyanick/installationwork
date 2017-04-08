@@ -24,6 +24,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+
 public class InstallationWorkCaptureActivity extends BaseActivity implements InstallationWorkCaptureView {
     public static final int REQUEST_QR_CODE_READ = 100;
     public static final int REQUEST_IMAGE_CAPTURE = 200;
@@ -135,7 +138,9 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
 
     @Override
     public void imageFailed() {
-        toast(R.string.error_installation_work_photo_failed);
+        Single.just(R.string.error_installation_work_photo_failed)
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::toast);
     }
 
     @Override
