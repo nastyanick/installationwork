@@ -18,6 +18,9 @@ import io.reactivex.Observable;
 import io.realm.Realm;
 import okhttp3.ResponseBody;
 
+/**
+ * Class BackgroundUploader uploads failed installation works to server
+ */
 public class BackgroundUploader {
     @Inject
     protected ProcessFileUseCase processFileUseCase;

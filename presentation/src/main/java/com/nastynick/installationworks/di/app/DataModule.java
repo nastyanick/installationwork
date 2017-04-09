@@ -1,6 +1,6 @@
 package com.nastynick.installationworks.di.app;
 
-import com.nastynick.installationworks.InstallationWorkCapture;
+import com.nastynick.installationworks.InstallationWorkCaptured;
 import com.nastynick.installationworks.repository.InstallationWorksRepository;
 
 import javax.inject.Singleton;
@@ -10,16 +10,16 @@ import dagger.Provides;
 
 @Module
 public class DataModule {
-    private InstallationWorkCapture installationWorkCapture;
+    private InstallationWorkCaptured installationWorkCaptured;
 
     public DataModule() {
-        installationWorkCapture = new InstallationWorkCapture();
+        installationWorkCaptured = new InstallationWorkCaptured();
     }
 
     @Provides
     @Singleton
-    public InstallationWorkCapture installationWorkCapture() {
-        return installationWorkCapture;
+    public InstallationWorkCaptured installationWorkCapture() {
+        return installationWorkCaptured;
     }
 
     @Provides

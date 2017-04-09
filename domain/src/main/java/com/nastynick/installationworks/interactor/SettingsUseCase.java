@@ -5,6 +5,9 @@ import com.nastynick.installationworks.repository.ResolutionRepository;
 
 import javax.inject.Inject;
 
+/**
+ * Class SettingsUseCase provides access to retrieving and storing settings
+ */
 public class SettingsUseCase {
     private ResolutionRepository resolutionRepository;
     private InstallationWorksRepository installationWorksRepository;

@@ -3,6 +3,9 @@ package com.nastynick.installationworks.entity;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
+/**
+ * Class CredentialsData is simple pojo class that represents  user credentials
+ */
 public class CredentialsData extends RealmObject {
     @PrimaryKey
     private String login;

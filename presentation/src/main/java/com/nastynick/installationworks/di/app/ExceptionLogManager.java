@@ -9,6 +9,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 
+/**
+ * Class ExceptionLogManager writes exceptions to file
+ */
 public class ExceptionLogManager {
 
     private static final String FILE_EXCEPTIONS = "installation_work_exceptions.txt";
@@ -23,7 +26,7 @@ public class ExceptionLogManager {
         Crashlytics.logException(exception);
 
         File file = getExceptionsFile();
-        saveCode(file, exception.getMessage() + Arrays.toString(exception.getStackTrace()));
+        saveException(file, exception.getMessage() + Arrays.toString(exception.getStackTrace()));
     }
 
     public File getExceptionsFile() {
@@ -40,11 +43,11 @@ public class ExceptionLogManager {
         return file;
     }
 
-    private void saveCode(File file, String code) {
+    private void saveException(File file, String exception) {
         FileWriter writer;
         try {
             writer = new FileWriter(file, true);
-            writer.append(code).append("\n");
+            writer.append(exception).append("\n");
             writer.flush();
             writer.close();
         } catch (IOException e) {

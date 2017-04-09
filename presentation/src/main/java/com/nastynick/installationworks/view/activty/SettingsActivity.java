@@ -15,7 +15,7 @@ import com.crashlytics.android.Crashlytics;
 import com.nastynick.installationworks.R;
 import com.nastynick.installationworks.databinding.ActivitySettingsBinding;
 import com.nastynick.installationworks.di.app.ExceptionLogManager;
-import com.nastynick.installationworks.util.SettingsPresenter;
+import com.nastynick.installationworks.presenter.SettingsPresenter;
 import com.nastynick.installationworks.view.SettingsView;
 
 import java.io.File;

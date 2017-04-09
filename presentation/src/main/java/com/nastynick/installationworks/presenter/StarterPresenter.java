@@ -12,6 +12,9 @@ import javax.net.ssl.SSLException;
 import io.reactivex.observers.DisposableObserver;
 import okhttp3.ResponseBody;
 
+/**
+ * Controls communication between UI and domain level
+ */
 public class StarterPresenter {
     private AuthUseCase authUseCase;
     private StarterView starterView;

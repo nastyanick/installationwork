@@ -4,8 +4,10 @@ import com.nastynick.installationworks.entity.InstallationWork;
 
 import java.io.File;
 
-//TODO replace with realm data
-public class InstallationWorkCapture {
+/**
+ * Singleton class contains installationWork {@link InstallationWork} and file with photo captured
+ */
+public class InstallationWorkCaptured {
     private File file;
     private InstallationWork installationWork;
 

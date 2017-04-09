@@ -4,6 +4,9 @@ import android.content.SharedPreferences;
 
 import javax.inject.Inject;
 
+/**
+ * Class ResolutionRepository provides access to photo's resolution storage
+ */
 public class ResolutionRepository {
     private static final int LOW_RESOLUTION_WIDTH = 800;
     private static final int HIGH_RESOLUTION_WIDTH = 1400;

@@ -12,11 +12,14 @@ import io.reactivex.Observable;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
+/**
+ * Class CredentialsRepository provides access to users credentials storage
+ */
 public class CredentialsRepository {
     private static String LOGIN = "login";
     private static String PASSWORD = "password";
 
-    SharedPreferences sharedPreferences;
+    private SharedPreferences sharedPreferences;
 
     @Inject
     public CredentialsRepository(SharedPreferences sharedPreferences) {

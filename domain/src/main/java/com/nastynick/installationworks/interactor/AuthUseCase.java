@@ -11,6 +11,9 @@ import javax.inject.Inject;
 import io.reactivex.Observer;
 import okhttp3.ResponseBody;
 
+/**
+ * Class AuthUseCase provides access to retrieving and storing settings user's auth credentials
+ */
 public class AuthUseCase extends UseCase {
 
     @Inject

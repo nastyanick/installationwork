@@ -8,6 +8,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+/**
+ * Transforms credentialsData {@link CredentialsData} to model class {@link CredentialsModel}
+ */
 public class CredentialsModelDataMapper {
     @Inject
     public CredentialsModelDataMapper() {

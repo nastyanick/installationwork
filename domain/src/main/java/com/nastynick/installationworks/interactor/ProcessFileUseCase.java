@@ -16,6 +16,10 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 import retrofit2.HttpException;
 
+/**
+ * ProcessFileUseCase represents a use case for
+ * processing  and uploading files
+ */
 public class ProcessFileUseCase extends UseCase {
     private InstallationWorksRepository installationWorksRepository;
 

@@ -11,6 +11,9 @@ import com.google.zxing.Result;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
+/**
+ * Activity that scans and reads QR code and sends result
+ */
 public class QrReaderActivity extends BaseActivity implements ZXingScannerView.ResultHandler {
     private ZXingScannerView mScannerView;
 

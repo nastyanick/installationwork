@@ -54,6 +54,9 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
         }
     }
 
+    /**
+     * Shows dialog with suggestion to clean memory
+     */
     @Override
     public void showMemoryCleanerDialog() {
         new AlertDialog.Builder(this)
@@ -83,6 +86,9 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
         } else checkPermissionAndTakePicture();
     }
 
+    /**
+     * Creates and dispatches intent to take picture
+     */
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
@@ -100,6 +106,9 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
         }
     }
 
+    /**
+     * Performs permission check and then creates and dispatches intent to scan qr code
+     */
     private void dispatchQrCodeScannerIntent() {
         if (PermissionChecker.checkPermission(this, Manifest.permission.CAMERA, PERMISSION_CAMERA)) {
             startActivityForResult(new Intent(this, QrReaderActivity.class), REQUEST_QR_CODE_READ);
@@ -159,6 +168,9 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
         finish();
     }
 
+    /**
+     * Process activity result - qr code or captured image
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

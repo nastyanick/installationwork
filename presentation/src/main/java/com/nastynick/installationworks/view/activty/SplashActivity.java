@@ -11,6 +11,9 @@ import com.nastynick.installationworks.view.StarterView;
 
 import javax.inject.Inject;
 
+/**
+ * Starter activity that check user logged in
+ */
 public class SplashActivity extends BaseActivity implements StarterView {
     @Inject
     protected StarterPresenter starterPresenter;

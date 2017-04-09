@@ -5,7 +5,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.support.v4.content.FileProvider;
 
-import com.nastynick.installationworks.InstallationWorkCapture;
+import com.nastynick.installationworks.InstallationWorkCaptured;
 import com.nastynick.installationworks.R;
 import com.nastynick.installationworks.di.app.ConnectionTracker;
 import com.nastynick.installationworks.di.app.ExceptionLogManager;
@@ -29,8 +29,11 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 
+/**
+ * Controls communication between UI and domain level
+ */
 public class InstallationWorkPresenter {
-    protected InstallationWorkCapture installationWorkCapture;
+    protected InstallationWorkCaptured installationWorkCaptured;
     private ConnectionTracker connectionTracker;
     private InstallationWorkQrCodeMapper mapper;
     private PostExecutionThread postExecutionThread;
@@ -43,14 +46,14 @@ public class InstallationWorkPresenter {
     @Inject
     public InstallationWorkPresenter(InstallationWorkQrCodeMapper mapper, SettingsUseCase settings, Context context,
                                      PostExecutionThread postExecutionThread, ProcessFileUseCase processFileUseCase,
-                                     InstallationWorkCapture installationWorkCapture, ConnectionTracker connectionTracker,
+                                     InstallationWorkCaptured installationWorkCaptured, ConnectionTracker connectionTracker,
                                      ExceptionLogManager exceptionLogManager) {
         this.mapper = mapper;
         this.settings = settings;
         this.context = context;
         this.postExecutionThread = postExecutionThread;
         this.processFileUseCase = processFileUseCase;
-        this.installationWorkCapture = installationWorkCapture;
+        this.installationWorkCaptured = installationWorkCaptured;
         this.connectionTracker = connectionTracker;
         this.exceptionLogManager = exceptionLogManager;
     }
@@ -64,15 +67,20 @@ public class InstallationWorkPresenter {
         if (transform == null) {
             installationWorkCaptureView.qrCodeFailed();
             installationWorkCaptureView.onFinish();
-        } else installationWorkCapture.setInstallationWork(transform);
+        } else installationWorkCaptured.setInstallationWork(transform);
     }
 
+    /**
+     * Creates file with name = installationWork title
+     *
+     * @return uri of file
+     */
     public Uri createFile() {
-        String fileName = installationWorkCapture.getInstallationWork().getTitle();
+        String fileName = installationWorkCaptured.getInstallationWork().getTitle();
         String root = context.getResources().getString(R.string.installation_work_root);
-        String[] directories = mapper.getInstallationWorkDirectories(root, installationWorkCapture.getInstallationWork());
-        File file = processFileUseCase.createFile(installationWorkCapture.getInstallationWork(), directories, fileName);
-        installationWorkCapture.setFile(file);
+        String[] directories = mapper.getInstallationWorkDirectories(root, installationWorkCaptured.getInstallationWork());
+        File file = processFileUseCase.createFile(installationWorkCaptured.getInstallationWork(), directories, fileName);
+        installationWorkCaptured.setFile(file);
         return FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", file);
     }
 
@@ -81,11 +89,14 @@ public class InstallationWorkPresenter {
         saveFile();
     }
 
+    /**
+     * Process and saves image from file
+     */
     private void saveFile() {
-        Observable.just(installationWorkCapture.getFile())
+        Observable.just(installationWorkCaptured.getFile())
                 .subscribeOn(Schedulers.io())
-                .doOnNext(file -> WaterMarker.resizeImage(file, settings.getWidth(),
-                        installationWorkCapture.getInstallationWork().getTitle(), new ImageObserver()))
+                .doOnNext(file -> WaterMarker.createImage(file, settings.getWidth(),
+                        installationWorkCaptured.getInstallationWork().getTitle(), new ImageObserver()))
                 .subscribe();
     }
 
@@ -102,12 +113,15 @@ public class InstallationWorkPresenter {
                 .subscribe(t -> uploadFile(root));
     }
 
+    /**
+     * Uploads processed image to server
+     */
     private void uploadFile(String root) {
         if (connectionTracker.isOnline()) {
-            InstallationWork installationWork = installationWorkCapture.getInstallationWork();
-            processFileUseCase.uploadFile(new FileUploadObservable(installationWork),
+            InstallationWork installationWork = installationWorkCaptured.getInstallationWork();
+            processFileUseCase.uploadFile(new FileUploadObserver(installationWork),
                     new ProgressObserver(installationWork), mapper.getInstallationWorkDirectories(root, installationWork),
-                    installationWorkCapture.getFile());
+                    installationWorkCaptured.getFile());
         } else {
             exceptionLogManager.addException(new Throwable("No network connection. Image file uploading cancelled"));
             hideLoadingView();
@@ -144,6 +158,9 @@ public class InstallationWorkPresenter {
         }
     }
 
+    /**
+     * Observes image processing
+     */
     private class ImageObserver extends AbsObserver {
         @Override
         public void onError(Throwable e) {
@@ -181,10 +198,10 @@ public class InstallationWorkPresenter {
         }
     }
 
-    private class FileUploadObservable extends AbsObserver<ResponseBody> {
+    private class FileUploadObserver extends AbsObserver<ResponseBody> {
         InstallationWork installationWork;
 
-        public FileUploadObservable(InstallationWork installationWork) {
+        public FileUploadObserver(InstallationWork installationWork) {
             this.installationWork = installationWork;
         }
 
@@ -196,7 +213,7 @@ public class InstallationWorkPresenter {
         @Override
         public void onComplete() {
             processFileUseCase.removeCached(installationWork);
-            installationWorkCapture.clear();
+            installationWorkCaptured.clear();
             hideLoadingView();
             installationWorkCaptureView.imageSuccess(R.string.installation_work_photo_uploaded);
             installationWorkCaptureView.onFinish();

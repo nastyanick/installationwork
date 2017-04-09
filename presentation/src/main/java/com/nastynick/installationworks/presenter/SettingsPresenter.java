@@ -1,4 +1,4 @@
-package com.nastynick.installationworks.util;
+package com.nastynick.installationworks.presenter;
 
 import android.content.Context;
 

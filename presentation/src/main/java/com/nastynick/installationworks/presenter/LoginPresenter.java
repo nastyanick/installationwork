@@ -18,7 +18,9 @@ import javax.inject.Inject;
 import okhttp3.ResponseBody;
 import retrofit2.HttpException;
 
-//@PerActivity
+/**
+ * Controls communication between UI and domain level
+ */
 public class LoginPresenter {
     private final AuthUseCase authUseCase;
     private LoginView loginView;

@@ -42,6 +42,9 @@ public class App extends Application {
         return appComponent;
     }
 
+    /**
+     * Class ConnectivityChangeReceiver provides failed files uploading on connection restore
+     */
     private class ConnectivityChangeReceiver extends BroadcastReceiver {
         private BackgroundUploader backgroundUploader;
 

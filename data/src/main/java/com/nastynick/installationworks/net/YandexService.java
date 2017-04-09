@@ -9,6 +9,9 @@ import retrofit2.http.Header;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
+/**
+ * YandexService provides requests to Yandex Disk
+ */
 public interface YandexService {
     @HTTP(method = "PROPFIND", path = "./")
     Observable<ResponseBody> getDiskInfo(@Header("Depth") String depth);

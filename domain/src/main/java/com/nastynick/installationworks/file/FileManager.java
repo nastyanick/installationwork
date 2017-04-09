@@ -5,6 +5,9 @@ import android.support.annotation.NonNull;
 
 import java.io.File;
 
+/**
+ * Helper to manage files and directories
+ */
 public class FileManager {
     public static File createFile(String fileName, String[] directoryNames) {
         File directory = null;

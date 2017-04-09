@@ -26,7 +26,17 @@ import io.reactivex.Observer;
 
 import static android.graphics.Bitmap.CompressFormat.PNG;
 
+/**
+ * Marks image with watermark
+ */
 public class WaterMarker {
+    /**
+     * Creates watermark
+     *
+     * @param src       source bitmap
+     * @param watermark text
+     * @return watermarked bitmap
+     */
     private static Bitmap mark(Bitmap src, String watermark) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -63,7 +73,10 @@ public class WaterMarker {
         return bounds;
     }
 
-    public static void resizeImage(File file, int maxResolution, String waterMark, Observer observer) {
+    /**
+     * Creates image from file, resizes it and makes watermark
+     */
+    public static void createImage(File file, int maxResolution, String waterMark, Observer observer) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(file.getAbsolutePath(), options);

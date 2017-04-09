@@ -4,6 +4,9 @@ import com.nastynick.installationworks.entity.InstallationWork;
 
 import io.realm.Realm;
 
+/**
+ * Class InstallationWorksRepository provides access to installation works storage
+ */
 public class InstallationWorksRepository {
 
     public void remove(InstallationWork installationWork) {
