@@ -29,6 +29,8 @@
     <string name="settings.photo_rezolution">Разрешение фотографий</string>
     <string name="settings.photo_rezolution.low">Низкое качество (компактный размер фотографий)</string>
     <string name="settings.photo_rezolution.high">Высокое качество (большой размер фотографий)</string>
+    <string name="settings.photo_gif">Режим съемки gif</string>
+    <string name="settings.photo_gif.frames">Количество кадров</string>
 
     <string name="memory.clear.title">На устройстве осталось мало свободной памяти. </string>
     <string name="memory.clear.message">Очистить данные из папки "Монтажные работы"? </string>

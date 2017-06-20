@@ -30,8 +30,24 @@ public class SettingsUseCase {
         return resolutionRepository.width();
     }
 
+    public boolean getGifTurned() {
+        return resolutionRepository.isGifTurned();
+    }
+
+    public void setGifTurned(boolean turned) {
+        resolutionRepository.setGifTurned(turned);
+    }
+
     public void removeData() {
         installationWorksRepository.removeAll();
         resolutionRepository.remove();
+    }
+
+    public int getGifFramesCount() {
+        return resolutionRepository.getGifGFramesCount();
+    }
+
+    public void setGifFramesCount(int value) {
+        resolutionRepository.setGifFramesCount(value);
     }
 }

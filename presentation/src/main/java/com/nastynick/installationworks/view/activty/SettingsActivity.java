@@ -23,6 +23,9 @@ import java.io.File;
 import javax.inject.Inject;
 
 public class SettingsActivity extends BaseActivity implements SettingsView {
+    private static final int MAX_FRAMES = 15;
+    private static final int MIN_FRAMES = 3;
+
     @Inject
     SettingsPresenter settingsPresenter;
 
@@ -38,13 +41,45 @@ public class SettingsActivity extends BaseActivity implements SettingsView {
         setTitle(R.string.settings);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_settings);
         getAppComponent().inject(this);
+        initListeners();
+        initViews();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         settingsPresenter.setSettingsView(this);
-        settingsPresenter.setSettingAccout();
+    }
+
+    private void initViews() {
+        binding.framesPicker.setMinValue(MIN_FRAMES);
+        binding.framesPicker.setMaxValue(MAX_FRAMES);
+    }
+
+    private void initListeners() {
+        binding.gifSwitch.setOnCheckedChangeListener((compoundButton, checked) -> settingsPresenter.gifEnableClick(checked));
+        binding.framesPicker.setOnValueChangedListener((numberPicker, oldValue, newValue) -> settingsPresenter.onFramesCountChanged(newValue));
     }
 
     @Override
     public void setSettingsAccount(String login) {
-        binding.logout.setText(login);
+        String title = getString(R.string.settings_pattern, getString(R.string.settings_logout), login);
+        binding.logout.setText(title);
+    }
+
+    @Override
+    public void setGifTurned(boolean turned) {
+        binding.gifSwitch.setChecked(turned);
+    }
+
+    @Override
+    public void setGifFramesCount(int value) {
+        binding.framesPicker.setValue(value);
+    }
+
+    @Override
+    public void setFramesPickerVisibility(boolean visible) {
+        binding.framesPickerContainer.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -61,7 +96,7 @@ public class SettingsActivity extends BaseActivity implements SettingsView {
     }
 
     public void onLogoutClick(View view) {
-        settingsPresenter.logout();
+        settingsPresenter.logoutClick();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
