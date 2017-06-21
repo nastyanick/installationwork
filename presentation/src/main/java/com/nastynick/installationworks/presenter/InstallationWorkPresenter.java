@@ -1,6 +1,7 @@
 package com.nastynick.installationworks.presenter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.v4.content.FileProvider;
@@ -13,6 +14,7 @@ import com.nastynick.installationworks.entity.InstallationWork;
 import com.nastynick.installationworks.executor.PostExecutionThread;
 import com.nastynick.installationworks.file.FileManager;
 import com.nastynick.installationworks.interactor.AbsObserver;
+import com.nastynick.installationworks.interactor.GifCreating;
 import com.nastynick.installationworks.interactor.ProcessFileUseCase;
 import com.nastynick.installationworks.interactor.SettingsUseCase;
 import com.nastynick.installationworks.mapper.InstallationWorkQrCodeMapper;
@@ -42,12 +44,13 @@ public class InstallationWorkPresenter {
     private Context context;
     private InstallationWorkCaptureView installationWorkCaptureView;
     private ExceptionLogManager exceptionLogManager;
+    private GifCreating gifCreating;
 
     @Inject
     public InstallationWorkPresenter(InstallationWorkQrCodeMapper mapper, SettingsUseCase settings, Context context,
                                      PostExecutionThread postExecutionThread, ProcessFileUseCase processFileUseCase,
                                      InstallationWorkCaptured installationWorkCaptured, ConnectionTracker connectionTracker,
-                                     ExceptionLogManager exceptionLogManager) {
+                                     ExceptionLogManager exceptionLogManager, GifCreating gifCreating) {
         this.mapper = mapper;
         this.settings = settings;
         this.context = context;
@@ -56,6 +59,7 @@ public class InstallationWorkPresenter {
         this.installationWorkCaptured = installationWorkCaptured;
         this.connectionTracker = connectionTracker;
         this.exceptionLogManager = exceptionLogManager;
+        this.gifCreating = gifCreating;
     }
 
     public void setInstallationWorkCaptureView(InstallationWorkCaptureView installationWorkCaptureView) {
@@ -161,7 +165,7 @@ public class InstallationWorkPresenter {
     /**
      * Observes image processing
      */
-    private class ImageObserver extends AbsObserver {
+    private class ImageObserver extends AbsObserver<Bitmap> {
         @Override
         public void onError(Throwable e) {
             exceptionLogManager.addException(e);
@@ -177,6 +181,11 @@ public class InstallationWorkPresenter {
         @Override
         public void onComplete() {
             uploadFile();
+        }
+
+        @Override
+        public void onNext(Bitmap image) {
+            gifCreating.makeGif(image);
         }
     }
 

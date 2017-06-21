@@ -76,7 +76,7 @@ public class WaterMarker {
     /**
      * Creates image from file, resizes it and makes watermark
      */
-    public static void createImage(File file, int maxResolution, String waterMark, Observer observer) {
+    public static void createImage(File file, int maxResolution, String waterMark, Observer<Bitmap> observer) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(file.getAbsolutePath(), options);
@@ -105,6 +105,7 @@ public class WaterMarker {
                     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
                         Bitmap markedImage = mark(loadedImage, waterMark);
                         writeBitmapToFile(markedImage, file, imageType);
+                        observer.onNext(markedImage);
                         observer.onComplete();
                     }
 
