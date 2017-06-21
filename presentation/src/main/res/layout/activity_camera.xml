@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <com.flurgle.camerakit.CameraView
+        android:id="@+id/camera"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        app:ckFlash="on"
+        app:ckJpegQuality="@integer/camera_quality"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <View
+        android:id="@+id/button_background"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/camera_buttton_background_height"
+        android:background="@color/camera_button_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/button_capture" />
+
+    <Button
+        android:id="@+id/button_capture"
+        android:layout_width="@dimen/camera_button_size"
+        android:layout_height="@dimen/camera_button_size"
+        android:layout_marginBottom="@dimen/camera_button_space"
+        android:layout_marginTop="@dimen/camera_button_space"
+        android:background="@drawable/sel_round_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+
+    <TextView
+        android:id="@+id/photos_count"
+        style="@style/PrimaryTextField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@id/button_capture"
+        app:layout_constraintLeft_toRightOf="@id/button_capture"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/button_capture"
+        tools:text="1 / 5" />
+</android.support.constraint.ConstraintLayout>

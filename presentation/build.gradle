@@ -80,4 +80,6 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile project(path: ':domain')
     compile project(path: ':data')
+
+    compile 'com.flurgle:camerakit:0.9.17'
 }

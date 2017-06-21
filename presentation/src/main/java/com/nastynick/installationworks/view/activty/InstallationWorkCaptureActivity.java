@@ -19,6 +19,7 @@ import com.nastynick.installationworks.databinding.ActivityInstallationWorkCaptu
 import com.nastynick.installationworks.presenter.InstallationWorkPresenter;
 import com.nastynick.installationworks.util.PermissionChecker;
 import com.nastynick.installationworks.view.InstallationWorkCaptureView;
+import com.nastynick.installationworks.view.camera.CameraActivity;
 
 import java.util.List;
 
@@ -83,7 +84,15 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
     public void scanOrTakePhoto() {
         if (qrCode == null) {
             dispatchQrCodeScannerIntent();
-        } else checkPermissionAndTakePicture();
+        } else if (installationWorkPresenter.settings().isGifTurned()) {
+            dispatchTakeGifEvent();
+        } else {
+            checkPermissionAndTakePicture();
+        }
+    }
+
+    private void dispatchTakeGifEvent() {
+        startActivityForResult(new Intent(this, CameraActivity.class), REQUEST_QR_CODE_READ);
     }
 
     /**

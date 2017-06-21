@@ -5,4 +5,8 @@
     <dimen name="view_padding_left">16dp</dimen>
     <dimen name="view_padding_right">16dp</dimen>
     <dimen name="view_space">30dp</dimen>
+
+    <dimen name="camera_button_space">20dp</dimen>
+    <dimen name="camera_button_size">50dp</dimen>
+    <dimen name="camera_buttton_background_height">120dp</dimen>
 </resources>
