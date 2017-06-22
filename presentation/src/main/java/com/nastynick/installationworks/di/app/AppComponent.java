@@ -5,6 +5,7 @@ import com.nastynick.installationworks.view.activty.InstallationWorkCaptureActiv
 import com.nastynick.installationworks.view.activty.LoginActivity;
 import com.nastynick.installationworks.view.activty.SettingsActivity;
 import com.nastynick.installationworks.view.activty.SplashActivity;
+import com.nastynick.installationworks.view.camera.CameraBurstActivity;
 
 import javax.inject.Singleton;
 
@@ -20,4 +21,6 @@ public interface AppComponent {
     void inject(InstallationWorkCaptureActivity installationWorkCaptureActivity);
 
     void inject(SettingsActivity settingsActivity);
+
+    void inject(CameraBurstActivity cameraBurstActivity);
 }

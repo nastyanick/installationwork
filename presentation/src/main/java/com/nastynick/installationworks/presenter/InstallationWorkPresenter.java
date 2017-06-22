@@ -1,10 +1,10 @@
 package com.nastynick.installationworks.presenter;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.v4.content.FileProvider;
+import android.util.Log;
 
 import com.nastynick.installationworks.InstallationWorkCaptured;
 import com.nastynick.installationworks.R;
@@ -47,6 +47,7 @@ public class InstallationWorkPresenter {
     private ExceptionLogManager exceptionLogManager;
     private GifCreating gifCreating;
     private ResolutionRepository resolutionRepository;
+    private int finishedCount = 0;
 
     @Inject
     public InstallationWorkPresenter(InstallationWorkQrCodeMapper mapper, SettingsUseCase settings, Context context,
@@ -78,18 +79,18 @@ public class InstallationWorkPresenter {
         } else installationWorkCaptured.setInstallationWork(transform);
     }
 
-    /**
-     * Creates file with name = installationWork title
-     *
-     * @return uri of file
-     */
-    public Uri createFile() {
+    public Uri getUriFile() {
+        File file = createFile(ProcessFileUseCase.JPG_EXTENSION);
+        return FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", file);
+    }
+
+    public File createFile(String extension) {
         String fileName = installationWorkCaptured.getInstallationWork().getTitle();
         String root = context.getResources().getString(R.string.installation_work_root);
         String[] directories = mapper.getInstallationWorkDirectories(root, installationWorkCaptured.getInstallationWork());
-        File file = processFileUseCase.createFile(installationWorkCaptured.getInstallationWork(), directories, fileName);
+        File file = processFileUseCase.createFile(installationWorkCaptured.getInstallationWork(), directories, fileName, extension);
         installationWorkCaptured.setFile(file);
-        return FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", file);
+        return file;
     }
 
     public void installationWorkCaptured() {
@@ -139,8 +140,9 @@ public class InstallationWorkPresenter {
     }
 
     private void uploadFailed(Throwable e) {
-        exceptionLogManager.addException(e);
+//        exceptionLogManager.addException(e);
 
+        Log.i("UploadFailed", e.getMessage());
         hideLoadingView();
         installationWorkCaptureView.imageFailed();
     }
@@ -166,14 +168,62 @@ public class InstallationWorkPresenter {
         }
     }
 
+    public void clearTemp() {
+        String root = context.getResources().getString(R.string.installation_work_root);
+        File tempFolder = new File(Environment.getExternalStorageDirectory(), root + "/temp");
+        FileManager.clear(tempFolder);
+    }
+
     public ResolutionRepository settings() {
         return resolutionRepository;
+    }
+
+    public void burstTaken(String[] burst) {
+        installationWorkCaptureView.showLoadingView(false);
+        installationWorkCaptureView.setGifLoadingDialogTitle();
+        Observable.fromArray(burst)
+                .flatMap(fileName ->
+                        Observable.just(fileName)
+                                .map(File::new)
+                                .doOnNext(file -> WaterMarker.createImage(file,
+                                        settings.getGifWidth(),
+                                        installationWorkCaptured.getInstallationWork().getTitle(),
+                                        new SimpleBitmapMarkerObserver(burst))))
+                .toList()
+                .subscribeOn(Schedulers.io())
+                .subscribe();
+    }
+
+    private class SimpleBitmapMarkerObserver extends AbsObserver {
+
+        private String[] burst;
+
+        public SimpleBitmapMarkerObserver(String[] burst) {
+            this.burst = burst;
+        }
+
+        @Override
+        public void onComplete() {
+            finishedCount++;
+            if (finishedCount >= burst.length) {
+                gifCreating.makeGif(createFile(ProcessFileUseCase.GIF_EXTENSION), burst, new AbsObserver<File>() {
+                    @Override
+                    public void onNext(File file) {
+
+                        installationWorkCaptured.setFile(file);
+                        uploadFile();
+                        clearTemp();
+//                        installationWorkCaptureView.setProgress((int) (((float) finishedCount / (float) burst.length) * 100));
+                    }
+                });
+            }
+        }
     }
 
     /**
      * Observes image processing
      */
-    private class ImageObserver extends AbsObserver<Bitmap> {
+    private class ImageObserver extends AbsObserver {
         @Override
         public void onError(Throwable e) {
             exceptionLogManager.addException(e);
@@ -189,11 +239,6 @@ public class InstallationWorkPresenter {
         @Override
         public void onComplete() {
             uploadFile();
-        }
-
-        @Override
-        public void onNext(Bitmap image) {
-            gifCreating.makeGif(image);
         }
     }
 
