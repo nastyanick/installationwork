@@ -21,6 +21,9 @@ import retrofit2.HttpException;
  * processing  and uploading files
  */
 public class ProcessFileUseCase extends UseCase {
+    public static final String JPG_EXTENSION = "jpg";
+    public static final String GIF_EXTENSION = "gif";
+
     private InstallationWorksRepository installationWorksRepository;
 
     @Inject
@@ -29,8 +32,8 @@ public class ProcessFileUseCase extends UseCase {
         this.postExecutionThread = postExecutionThread;
     }
 
-    public File createFile(InstallationWork installationWork, String[] directories, String fileName) {
-        File file = FileManager.createFile(fileName, directories);
+    public File createFile(InstallationWork installationWork, String[] directories, String fileName, String extension) {
+        File file = FileManager.createFile(fileName, directories, extension);
         installationWorksRepository.save(installationWork, file.getAbsolutePath());
         return file;
     }

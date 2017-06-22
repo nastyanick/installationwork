@@ -4,6 +4,8 @@ public interface InstallationWorkCaptureView {
 
     void showLoadingView(boolean upload);
 
+    void setGifLoadingDialogTitle();
+
     void hideLoadingView();
 
     void imageSuccess(int message);

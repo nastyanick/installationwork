@@ -15,6 +15,7 @@
     <string name="installation_work.title">%1$s %2$s</string>
 
     <string name="installation_work.photo.processing.title.saving">Обработка фотографии…</string>
+    <string name="installation_work.gif.processing.title.saving">Генерация GIF изображения…</string>
     <string name="installation_work.photo.processing.title.uploading">Загрузка на Яндекс Диск</string>
     <string name="installation_work.photo.processing.message">Пожалуйста, подождите</string>
     <string name="installation_work.photo.saved">Фотография успешно загружена на устройство</string>
@@ -35,4 +36,7 @@
     <string name="memory.clear.title">На устройстве осталось мало свободной памяти. </string>
     <string name="memory.clear.message">Очистить данные из папки "Монтажные работы"? </string>
     <string name="memory.clear.success">Папка "Монтажные работы очищена"</string>
+
+    <string name="gif_camera.from">%1$d / %2$d</string>
+
 </resources>

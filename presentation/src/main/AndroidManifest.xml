@@ -41,7 +41,7 @@
             android:name=".view.activty.SettingsActivity"
             android:screenOrientation="portrait" />
 
-        <activity android:name=".view.camera.CameraActivity" />
+        <activity android:name=".view.camera.CameraBurstActivity" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"

@@ -30,6 +30,10 @@ public class SettingsUseCase {
         return resolutionRepository.width();
     }
 
+    public int getGifWidth() {
+        return resolutionRepository.getGifWidth();
+    }
+
     public boolean getGifTurned() {
         return resolutionRepository.isGifTurned();
     }

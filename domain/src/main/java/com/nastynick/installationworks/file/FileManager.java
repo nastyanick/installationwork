@@ -9,12 +9,12 @@ import java.io.File;
  * Helper to manage files and directories
  */
 public class FileManager {
-    public static File createFile(String fileName, String[] directoryNames) {
+    public static File createFile(String fileName, String[] directoryNames, String extension) {
         File directory = null;
         for (String directoryName : directoryNames) {
             directory = getFileDirectory(directory == null ? Environment.getExternalStorageDirectory() : directory, directoryName);
         }
-        return new File(directory, fileName + ".jpg");
+        return new File(directory, fileName + "." + extension);
     }
 
     @NonNull

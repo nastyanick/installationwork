@@ -19,7 +19,7 @@ import com.nastynick.installationworks.databinding.ActivityInstallationWorkCaptu
 import com.nastynick.installationworks.presenter.InstallationWorkPresenter;
 import com.nastynick.installationworks.util.PermissionChecker;
 import com.nastynick.installationworks.view.InstallationWorkCaptureView;
-import com.nastynick.installationworks.view.camera.CameraActivity;
+import com.nastynick.installationworks.view.camera.CameraBurstActivity;
 
 import java.util.List;
 
@@ -29,11 +29,14 @@ import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class InstallationWorkCaptureActivity extends BaseActivity implements InstallationWorkCaptureView {
+    public static final int REQUEST_TAKE_PHOTOS_BURST = 50;
     public static final int REQUEST_QR_CODE_READ = 100;
     public static final int REQUEST_IMAGE_CAPTURE = 200;
+
     public static final int PERMISSION_CAMERA = 300;
     public static final int PERMISSION_EXTERNAL_STORAGE = 400;
     public static final String QR_CODE = "qrcode";
+    public static final String EXTRA_PHOTOS_BURST = "photos_burst";
     public static final String NEED_MEMORY_CHECK = "needMemoryCheck";
 
     @Inject
@@ -92,7 +95,7 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
     }
 
     private void dispatchTakeGifEvent() {
-        startActivityForResult(new Intent(this, CameraActivity.class), REQUEST_QR_CODE_READ);
+        startActivityForResult(new Intent(this, CameraBurstActivity.class), REQUEST_TAKE_PHOTOS_BURST);
     }
 
     /**
@@ -101,7 +104,7 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            Uri photoFile = installationWorkPresenter.createFile();
+            Uri photoFile = installationWorkPresenter.getUriFile();
             if (photoFile != null) {
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoFile);
 
@@ -142,6 +145,11 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
             progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         }
         progressDialog.show();
+    }
+
+    @Override
+    public void setGifLoadingDialogTitle() {
+        progressDialog.setTitle(R.string.installation_work_gif_processing_title_saving);
     }
 
     @Override
@@ -189,6 +197,9 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
                 processQrCode();
             } else if (REQUEST_IMAGE_CAPTURE == requestCode) {
                 installationWorkPresenter.installationWorkCaptured();
+            } else if (REQUEST_TAKE_PHOTOS_BURST == requestCode) {
+                String[] burst = data.getStringArrayExtra(EXTRA_PHOTOS_BURST);
+                installationWorkPresenter.burstTaken(burst);
             }
         }
     }

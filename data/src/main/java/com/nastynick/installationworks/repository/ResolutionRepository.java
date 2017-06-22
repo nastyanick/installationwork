@@ -8,6 +8,8 @@ import javax.inject.Inject;
  * Class ResolutionRepository provides access to photo's resolution storage
  */
 public class ResolutionRepository {
+    private static final int GIF_RESOLUTION_WIDTH = 300;
+
     private static final int LOW_RESOLUTION_WIDTH = 800;
     private static final int HIGH_RESOLUTION_WIDTH = 1400;
     private static final int MIN_GIF_FRAMES_COUNT = 3;
@@ -53,5 +55,9 @@ public class ResolutionRepository {
 
     public int getGifGFramesCount() {
         return sharedPreferences.getInt(GIF_FRAMES_COUNT, MIN_GIF_FRAMES_COUNT);
+    }
+
+    public int getGifWidth() {
+        return GIF_RESOLUTION_WIDTH;
     }
 }

@@ -1,11 +1,12 @@
 package com.nastynick.installationworks.interactor;
 
 import android.graphics.Bitmap;
-import android.os.Environment;
-import android.util.Log;
+import android.graphics.BitmapFactory;
 
+import com.nastynick.installationworks.file.FileManager;
 import com.nastynick.installationworks.gifmaker.AnimatedGifEncoder;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -13,73 +14,61 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
-import io.reactivex.Single;
-import io.reactivex.functions.Function;
-import io.reactivex.observers.DisposableSingleObserver;
+import io.reactivex.Observable;
+import io.reactivex.Observer;
 import io.reactivex.schedulers.Schedulers;
 
 public class GifCreating extends UseCase {
+
+    public static final int GIF_QUALITY = 20;
+    private static final int GIF_FRAMES_DELAY = 500;
 
     @Inject
     public GifCreating() {
     }
 
+    public void makeGif(File gifFile, String[] files, Observer<File> gifObserver) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        AnimatedGifEncoder gifEncoder = new AnimatedGifEncoder();
+        gifEncoder.start(baos);//start
+        gifEncoder.setRepeat(0);
+        gifEncoder.setDelay(GIF_FRAMES_DELAY);
+        gifEncoder.setQuality(GIF_QUALITY);
 
-    public void makeGif(final Bitmap bitmap) {
-        Single.just(bitmap)
+        Observable.fromArray(files)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .map(new Function<Bitmap, Boolean>() {
-                    @Override
-                    public Boolean apply(Bitmap bitmap) throws Exception {
-                        return createGif(bitmap);
-                    }
-                })
-                .subscribe(new DisposableSingleObserver<Boolean>() {
-                    @Override
-                    public void onSuccess(Boolean value) {
-                        Log.i("GifCreatingSuccess", String.valueOf(value));
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.i("GifCreatingError", e.getMessage());
-                    }
-                });
+                .flatMap(file -> Observable.just(file)
+                        .map(fileName -> {
+                            BitmapFactory.Options options = new BitmapFactory.Options();
+                            options.inPreferredConfig = Bitmap.Config.RGB_565;
+                            return BitmapFactory.decodeFile(fileName, options);
+                        })
+                        .doOnNext(gifEncoder::addFrame))
+                .toList()
+                .subscribe(res -> writeGif(gifFile, gifEncoder, baos, gifObserver));
     }
 
-    private boolean createGif(Bitmap bitmap) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        AnimatedGifEncoder localAnimatedGifEncoder = new AnimatedGifEncoder();
-        localAnimatedGifEncoder.start(baos);//start
-        localAnimatedGifEncoder.setRepeat(0);
-        localAnimatedGifEncoder.setDelay(500);
-        localAnimatedGifEncoder.setQuality(20);
 
-//        if (pics.isEmpty()) {
-//        localAnimatedGifEncoder.addFrame(BitmapFactory.decodeResource(context.getResources(), R.drawable.pic_1));
-        localAnimatedGifEncoder.addFrame(bitmap);
-        localAnimatedGifEncoder.addFrame(bitmap);
-        localAnimatedGifEncoder.addFrame(bitmap);
-        localAnimatedGifEncoder.addFrame(bitmap);
-//        } else {
-//            for (int i = 0; i < pics.size(); i++) {
-//                 Bitmap localBitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(pics.get(i)), 512, 512);
-//                localAnimatedGifEncoder.addFrame(BitmapFactory.decodeFile(pics.get(i)));
-//            }
-//        }
-        localAnimatedGifEncoder.finish();//finish
+    private void writeGif(File gifFile, AnimatedGifEncoder gifEncoder, ByteArrayOutputStream baos, Observer<File> gifObserver) throws IOException {
+        gifEncoder.finish();//finish
 
-        File file = new File(Environment.getExternalStorageDirectory().getPath() + "/GIFMakerDemo");
-        if (!file.exists()) file.mkdir();
-        final String path = Environment.getExternalStorageDirectory().getPath() + "/GIFMakerDemo/" + "gifmaker.gif";
-
-        FileOutputStream fos = new FileOutputStream(path);
+        FileOutputStream fos = new FileOutputStream(gifFile);
         baos.writeTo(fos);
         baos.flush();
         fos.flush();
         baos.close();
         fos.close();
-        return true;
+
+        gifObserver.onNext(gifFile);
+    }
+
+    public String createPictureFile(byte[] picture, String root) throws IOException {
+        File file = FileManager.createFile(String.valueOf(System.currentTimeMillis()), new String[]{root, "temp"}, ProcessFileUseCase.JPG_EXTENSION);
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+        bos.write(picture);
+        bos.flush();
+        bos.close();
+        return file.getPath();
     }
 }
