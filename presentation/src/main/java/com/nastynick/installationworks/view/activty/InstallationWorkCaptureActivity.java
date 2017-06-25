@@ -78,6 +78,11 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
         toast(R.string.memory_clear_success);
     }
 
+    @Override
+    public void showGifFailedMessage() {
+        toast(R.string.error_gif_camera);
+    }
+
     public void onScanClick(View view) {
         scanOrTakePhoto();
     }

@@ -46,7 +46,14 @@ public class GifCreating extends UseCase {
                             options.inPreferredConfig = Bitmap.Config.RGB_565;
                             return BitmapFactory.decodeFile(fileName, options);
                         })
-                        .doOnNext(gifEncoder::addFrame))
+                        .doOnNext(bitmap -> {
+                            try {
+                                gifEncoder.addFrame(bitmap);
+                            } catch (OutOfMemoryError error) {
+                                gifObserver.onError(error);
+                            }
+                        })
+                )
                 .toList()
                 .subscribe(res -> writeGif(gifFile, gifEncoder, baos, gifObserver));
     }

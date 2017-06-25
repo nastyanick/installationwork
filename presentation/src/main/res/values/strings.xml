@@ -41,4 +41,6 @@
     <string name="gif_camera.from">%1$d / %2$d</string>
     <string name="gif_camera_delay">%1$d ms</string>
 
+    <string name="error.gif_camera">Во время генерации gif возникли ошибки… Возможно, необходимо уменьшить размер фото и количество кадров</string>
+
 </resources>

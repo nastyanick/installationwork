@@ -21,4 +21,6 @@ public interface InstallationWorkCaptureView {
     void showMemoryCleanerDialog();
 
     void memoryCleaned();
+
+    void showGifFailedMessage();
 }

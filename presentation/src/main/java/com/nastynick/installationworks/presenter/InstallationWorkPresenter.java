@@ -29,6 +29,7 @@ import javax.inject.Inject;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 
@@ -194,6 +195,14 @@ public class InstallationWorkPresenter {
                 .subscribe();
     }
 
+    private void onError(Throwable e, Consumer<InstallationWorkCaptureView> consumer) {
+        exceptionLogManager.addException(e);
+
+        Observable.just(installationWorkCaptureView)
+                .observeOn(postExecutionThread.getScheduler())
+                .subscribe(consumer);
+    }
+
     private class SimpleBitmapMarkerObserver extends AbsObserver {
 
         private String[] burst;
@@ -206,17 +215,25 @@ public class InstallationWorkPresenter {
         public void onComplete() {
             finishedCount++;
             if (finishedCount >= burst.length) {
-                gifCreating.makeGif(createFile(ProcessFileUseCase.GIF_EXTENSION), burst, new AbsObserver<File>() {
-                    @Override
-                    public void onNext(File file) {
-
-                        installationWorkCaptured.setFile(file);
-                        uploadFile();
-                        clearTemp();
-//                        installationWorkCaptureView.setProgress((int) (((float) finishedCount / (float) burst.length) * 100));
-                    }
-                });
+                gifCreating.makeGif(createFile(ProcessFileUseCase.GIF_EXTENSION), burst, new GifUploadObserver());
             }
+        }
+    }
+
+    private class GifUploadObserver extends AbsObserver<File> {
+        @Override
+        public void onNext(File file) {
+            installationWorkCaptured.setFile(file);
+            uploadFile();
+            clearTemp();
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            InstallationWorkPresenter.this.onError(e, view -> {
+                view.hideLoadingView();
+                view.showGifFailedMessage();
+            });
         }
     }
 
@@ -226,14 +243,10 @@ public class InstallationWorkPresenter {
     private class ImageObserver extends AbsObserver {
         @Override
         public void onError(Throwable e) {
-            exceptionLogManager.addException(e);
-
-            Observable.just(installationWorkCaptureView)
-                    .observeOn(postExecutionThread.getScheduler())
-                    .subscribe(t -> {
-                        hideLoadingView();
-                        installationWorkCaptureView.imageFailed();
-                    });
+            InstallationWorkPresenter.this.onError(e, view -> {
+                view.hideLoadingView();
+                view.imageFailed();
+            });
         }
 
         @Override
