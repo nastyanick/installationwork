@@ -12,6 +12,8 @@
         <item name="android:windowBackground">@drawable/sh_splash</item>
     </style>
 
+    <style name="CameraBurstTheme" parent="Theme.AppCompat.Light.NoActionBar" />
+
     <style name="SimpleTextField">
         <item name="android:textSize">18sp</item>
     </style>

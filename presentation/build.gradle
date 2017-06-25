@@ -81,5 +81,5 @@ dependencies {
     compile project(path: ':domain')
     compile project(path: ':data')
 
-    compile 'com.flurgle:camerakit:0.9.17'
+    compile 'com.flurgle:camerakit:0.9.18'
 }

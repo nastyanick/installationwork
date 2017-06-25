@@ -24,7 +24,7 @@ import java.io.File;
 import javax.inject.Inject;
 
 public class SettingsActivity extends BaseActivity implements SettingsView {
-    private static final int MAX_FRAMES = 15;
+    private static final int MAX_FRAMES = 25;
     private static final int MIN_FRAMES = 3;
     private static final int PERCENT_TO_MILLIS_COEFFICIENT = 15;
 
