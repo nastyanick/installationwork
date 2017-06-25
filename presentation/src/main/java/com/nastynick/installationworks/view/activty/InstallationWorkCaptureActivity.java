@@ -34,7 +34,9 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
     public static final int REQUEST_IMAGE_CAPTURE = 200;
 
     public static final int PERMISSION_CAMERA = 300;
-    public static final int PERMISSION_EXTERNAL_STORAGE = 400;
+    public static final int PERMISSION_TAKE_PICTURE_EXTERNAL_STORAGE = 400;
+    public static final int PERMISSION_TAKE_GIF_EXTERNAL_STORAGE = 500;
+
     public static final String QR_CODE = "qrcode";
     public static final String EXTRA_PHOTOS_BURST = "photos_burst";
     public static final String NEED_MEMORY_CHECK = "needMemoryCheck";
@@ -95,7 +97,9 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
     }
 
     private void dispatchTakeGifEvent() {
-        startActivityForResult(new Intent(this, CameraBurstActivity.class), REQUEST_TAKE_PHOTOS_BURST);
+        if (PermissionChecker.checkPermission(this, PERMISSION_TAKE_GIF_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            startActivityForResult(new Intent(this, CameraBurstActivity.class), REQUEST_TAKE_PHOTOS_BURST);
+        }
     }
 
     /**
@@ -205,7 +209,7 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
     }
 
     private void checkPermissionAndTakePicture() {
-        if (PermissionChecker.checkPermission(this, PERMISSION_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+        if (PermissionChecker.checkPermission(this, PERMISSION_TAKE_PICTURE_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)) {
             dispatchTakePictureIntent();
         }
     }
@@ -214,13 +218,18 @@ public class InstallationWorkCaptureActivity extends BaseActivity implements Ins
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             switch (requestCode) {
-                case PERMISSION_EXTERNAL_STORAGE: {
+                case PERMISSION_TAKE_PICTURE_EXTERNAL_STORAGE: {
                     dispatchTakePictureIntent();
                     break;
                 }
                 case PERMISSION_CAMERA: {
                     dispatchQrCodeScannerIntent();
+                    break;
                 }
+
+                case PERMISSION_TAKE_GIF_EXTERNAL_STORAGE:
+                    dispatchTakeGifEvent();
+                    break;
             }
         }
     }

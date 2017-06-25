@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
 import com.flurgle.camerakit.CameraListener;
 import com.flurgle.camerakit.CameraView;
 import com.nastynick.installationworks.R;
@@ -49,10 +50,7 @@ public class CameraBurstActivity extends BaseActivity implements CameraBurstView
     }
 
     public void initListeners() {
-        captureButton.setOnClickListener((v) -> {
-            cameraView.captureImage();
-            beep();
-        });
+        captureButton.setOnClickListener((v) -> takePicture());
 
         cameraView.setCameraListener(new CameraListener() {
             @Override
@@ -60,6 +58,16 @@ public class CameraBurstActivity extends BaseActivity implements CameraBurstView
                 presenter.addImage(picture);
             }
         });
+    }
+
+    public void takePicture() {
+        try {
+            cameraView.captureImage();
+            beep();
+        } catch (RuntimeException e) {
+            Crashlytics.logException(e);
+            takePicture();
+        }
     }
 
     private void beep() {
