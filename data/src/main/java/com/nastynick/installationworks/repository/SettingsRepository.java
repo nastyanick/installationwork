@@ -5,21 +5,23 @@ import android.content.SharedPreferences;
 import javax.inject.Inject;
 
 /**
- * Class ResolutionRepository provides access to photo's resolution storage
+ * Class SettingsRepository provides access to photo's resolution storage
  */
-public class ResolutionRepository {
+public class SettingsRepository {
     private static final int LOW_RESOLUTION_WIDTH = 800;
     private static final int HIGH_RESOLUTION_WIDTH = 1400;
     private static final int MIN_GIF_FRAMES_COUNT = 3;
+    private static final int DEFAULT_GIF_FRAMES_DELAY = 500;
 
     private static final String WIDTH = "width";
     private static final String GIF_TURNED = "gif_turned";
     private static final String GIF_FRAMES_COUNT = "gif_frames_count";
+    private static final String GIF_FRAMES_DELAY = "gif_frames_delay";
 
     private SharedPreferences sharedPreferences;
 
     @Inject
-    public ResolutionRepository(SharedPreferences sharedPreferences) {
+    public SettingsRepository(SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
     }
 
@@ -57,5 +59,13 @@ public class ResolutionRepository {
 
     public int getGifWidth() {
         return width();
+    }
+
+    public int getFramesDelay() {
+        return sharedPreferences.getInt(GIF_FRAMES_DELAY, DEFAULT_GIF_FRAMES_DELAY);
+    }
+
+    public void setFramesDelay(int delay) {
+        sharedPreferences.edit().putInt(GIF_FRAMES_DELAY, delay).apply();
     }
 }

@@ -9,5 +9,7 @@ public interface SettingsView {
 
     void setGifFramesCount(int gifFramesCount);
 
+    void setGifFramesDelay(int delay);
+
     void setFramesPickerVisibility(boolean visibile);
 }

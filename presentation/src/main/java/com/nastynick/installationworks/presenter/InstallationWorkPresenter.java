@@ -18,7 +18,7 @@ import com.nastynick.installationworks.interactor.GifCreating;
 import com.nastynick.installationworks.interactor.ProcessFileUseCase;
 import com.nastynick.installationworks.interactor.SettingsUseCase;
 import com.nastynick.installationworks.mapper.InstallationWorkQrCodeMapper;
-import com.nastynick.installationworks.repository.ResolutionRepository;
+import com.nastynick.installationworks.repository.SettingsRepository;
 import com.nastynick.installationworks.util.MemoryUtil;
 import com.nastynick.installationworks.util.WaterMarker;
 import com.nastynick.installationworks.view.InstallationWorkCaptureView;
@@ -46,7 +46,7 @@ public class InstallationWorkPresenter {
     private InstallationWorkCaptureView installationWorkCaptureView;
     private ExceptionLogManager exceptionLogManager;
     private GifCreating gifCreating;
-    private ResolutionRepository resolutionRepository;
+    private SettingsRepository settingsRepository;
     private int finishedCount = 0;
 
     @Inject
@@ -54,7 +54,7 @@ public class InstallationWorkPresenter {
                                      PostExecutionThread postExecutionThread, ProcessFileUseCase processFileUseCase,
                                      InstallationWorkCaptured installationWorkCaptured, ConnectionTracker connectionTracker,
                                      ExceptionLogManager exceptionLogManager, GifCreating gifCreating,
-                                     ResolutionRepository resolutionRepository) {
+                                     SettingsRepository settingsRepository) {
         this.mapper = mapper;
         this.settings = settings;
         this.context = context;
@@ -64,7 +64,7 @@ public class InstallationWorkPresenter {
         this.connectionTracker = connectionTracker;
         this.exceptionLogManager = exceptionLogManager;
         this.gifCreating = gifCreating;
-        this.resolutionRepository = resolutionRepository;
+        this.settingsRepository = settingsRepository;
     }
 
     public void setInstallationWorkCaptureView(InstallationWorkCaptureView installationWorkCaptureView) {
@@ -174,8 +174,8 @@ public class InstallationWorkPresenter {
         FileManager.clear(tempFolder);
     }
 
-    public ResolutionRepository settings() {
-        return resolutionRepository;
+    public SettingsRepository settings() {
+        return settingsRepository;
     }
 
     public void burstTaken(String[] burst) {

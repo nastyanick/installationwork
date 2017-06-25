@@ -7,6 +7,7 @@ import com.nastynick.installationworks.view.SettingsView;
 import javax.inject.Inject;
 
 public class SettingsPresenter {
+
     private SettingsView settingsView;
     private SettingsUseCase settingsUseCase;
     private CredentialsRepository credentialsRepository;
@@ -24,6 +25,7 @@ public class SettingsPresenter {
         settingsView.setFramesPickerVisibility(settingsUseCase.getGifTurned());
         settingsView.setGifFramesCount(settingsUseCase.getGifFramesCount());
         settingsView.setSettingsAccount(credentialsRepository.getLogin());
+        settingsView.setGifFramesDelay(settingsUseCase.getFramesDelay());
     }
 
     public void resolutionChecked(boolean isLow) {
@@ -37,6 +39,11 @@ public class SettingsPresenter {
     public void gifEnableClick(boolean enabled) {
         settingsUseCase.setGifTurned(enabled);
         settingsView.setFramesPickerVisibility(enabled);
+    }
+
+    public void onFramesDelayChanged(int percent) {
+        settingsUseCase.setFramesDelay(percent);
+        settingsView.setGifFramesDelay(settingsUseCase.getFramesDelay());
     }
 
     public void onFramesCountChanged(int value) {

@@ -77,23 +77,13 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="@id/gif" />
 
-            <FrameLayout
+            <android.support.constraint.ConstraintLayout
                 android:id="@+id/frames_picker_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:animateLayoutChanges="true"
-                android:visibility="gone"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/gif_switch">
-
-                <TextView
-                    android:id="@+id/frames"
-                    style="@style/PrimaryTextField"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:paddingLeft="@dimen/view_padding_left"
-                    android:text="@string/settings.photo_gif.frames" />
 
                 <NumberPicker
                     android:id="@+id/frames_picker"
@@ -103,9 +93,59 @@
                     android:descendantFocusability="blocksDescendants"
                     android:scaleX=".7"
                     android:scaleY=".7"
-                    android:theme="@android:style/Theme.Dialog" />
+                    android:theme="@android:style/Theme.Dialog"
+                    app:layout_constraintRight_toRightOf="parent" />
 
-            </FrameLayout>
+                <TextView
+                    android:id="@+id/frames"
+                    style="@style/PrimaryTextField"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:paddingLeft="@dimen/view_padding_left"
+                    android:text="@string/settings.photo_gif.frames"
+                    app:layout_constraintBottom_toBottomOf="@id/frames_picker"
+                    app:layout_constraintTop_toTopOf="@id/frames_picker" />
+
+                <TextView
+                    android:id="@+id/frames_delay_title"
+                    style="@style/PrimaryTextField"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="16dp"
+                    android:paddingLeft="@dimen/view_padding_left"
+                    android:paddingTop="@dimen/view_space"
+                    android:text="@string/settings.photo_gif.delay"
+                    app:layout_constraintHorizontal_chainStyle="spread_inside"
+                    app:layout_constraintHorizontal_weight="1"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toLeftOf="@+id/frames_delay"
+                    app:layout_constraintTop_toBottomOf="@id/frames_picker" />
+
+                <TextView
+                    android:id="@id/frames_delay"
+                    style="@style/PrimaryTextField"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="16dp"
+                    android:paddingLeft="@dimen/view_padding_left"
+                    android:paddingRight="@dimen/view_padding_right"
+                    android:paddingTop="@dimen/view_space"
+                    android:text="0 ms"
+                    app:layout_constraintLeft_toRightOf="@id/frames_delay_title"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/frames_picker_container"
+                    app:layout_constraintTop_toTopOf="@id/frames_delay_title" />
+
+                <SeekBar
+                    android:id="@+id/frames_delay_seekbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="@dimen/view_space"
+                    android:paddingLeft="@dimen/view_padding_left"
+                    android:paddingRight="@dimen/view_padding_right"
+                    app:layout_constraintTop_toBottomOf="@id/frames_delay_title" />
+            </android.support.constraint.ConstraintLayout>
 
             <View
                 android:id="@+id/log_delimiter"

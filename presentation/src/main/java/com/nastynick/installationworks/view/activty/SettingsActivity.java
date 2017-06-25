@@ -10,6 +10,7 @@ import android.support.v4.content.FileProvider;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.SeekBar;
 
 import com.crashlytics.android.Crashlytics;
 import com.nastynick.installationworks.R;
@@ -25,6 +26,7 @@ import javax.inject.Inject;
 public class SettingsActivity extends BaseActivity implements SettingsView {
     private static final int MAX_FRAMES = 15;
     private static final int MIN_FRAMES = 3;
+    private static final int PERCENT_TO_MILLIS_COEFFICIENT = 15;
 
     @Inject
     SettingsPresenter settingsPresenter;
@@ -33,6 +35,22 @@ public class SettingsActivity extends BaseActivity implements SettingsView {
     ExceptionLogManager exceptionLogManager;
 
     ActivitySettingsBinding binding;
+    private SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            if (fromUser) {
+                settingsPresenter.onFramesDelayChanged(progress * PERCENT_TO_MILLIS_COEFFICIENT);
+            }
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+        }
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,6 +77,7 @@ public class SettingsActivity extends BaseActivity implements SettingsView {
     private void initListeners() {
         binding.gifSwitch.setOnCheckedChangeListener((compoundButton, checked) -> settingsPresenter.gifEnableClick(checked));
         binding.framesPicker.setOnValueChangedListener((numberPicker, oldValue, newValue) -> settingsPresenter.onFramesCountChanged(newValue));
+        binding.framesDelaySeekbar.setOnSeekBarChangeListener(seekBarChangeListener);
     }
 
     @Override
@@ -75,6 +94,12 @@ public class SettingsActivity extends BaseActivity implements SettingsView {
     @Override
     public void setGifFramesCount(int value) {
         binding.framesPicker.setValue(value);
+    }
+
+    @Override
+    public void setGifFramesDelay(int delay) {
+        binding.framesDelaySeekbar.setProgress(delay / PERCENT_TO_MILLIS_COEFFICIENT);
+        binding.framesDelay.setText(String.format(getString(R.string.gif_camera_delay), delay));
     }
 
     @Override

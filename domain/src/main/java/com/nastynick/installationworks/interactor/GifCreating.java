@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 
 import com.nastynick.installationworks.file.FileManager;
 import com.nastynick.installationworks.gifmaker.AnimatedGifEncoder;
+import com.nastynick.installationworks.repository.SettingsRepository;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -21,10 +22,11 @@ import io.reactivex.schedulers.Schedulers;
 public class GifCreating extends UseCase {
 
     public static final int GIF_QUALITY = 20;
-    private static final int GIF_FRAMES_DELAY = 500;
+    private SettingsRepository settingsRepository;
 
     @Inject
-    public GifCreating() {
+    public GifCreating(SettingsRepository settingsRepository) {
+        this.settingsRepository = settingsRepository;
     }
 
     public void makeGif(File gifFile, String[] files, Observer<File> gifObserver) {
@@ -32,7 +34,7 @@ public class GifCreating extends UseCase {
         AnimatedGifEncoder gifEncoder = new AnimatedGifEncoder();
         gifEncoder.start(baos);//start
         gifEncoder.setRepeat(0);
-        gifEncoder.setDelay(GIF_FRAMES_DELAY);
+        gifEncoder.setDelay(settingsRepository.getFramesDelay());
         gifEncoder.setQuality(GIF_QUALITY);
 
         Observable.fromArray(files)

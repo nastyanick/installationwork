@@ -1,7 +1,7 @@
 package com.nastynick.installationworks.interactor;
 
 import com.nastynick.installationworks.repository.InstallationWorksRepository;
-import com.nastynick.installationworks.repository.ResolutionRepository;
+import com.nastynick.installationworks.repository.SettingsRepository;
 
 import javax.inject.Inject;
 
@@ -9,49 +9,57 @@ import javax.inject.Inject;
  * Class SettingsUseCase provides access to retrieving and storing settings
  */
 public class SettingsUseCase {
-    private ResolutionRepository resolutionRepository;
+    private SettingsRepository settingsRepository;
     private InstallationWorksRepository installationWorksRepository;
 
     @Inject
-    public SettingsUseCase(ResolutionRepository resolutionRepository, InstallationWorksRepository installationWorksRepository) {
-        this.resolutionRepository = resolutionRepository;
+    public SettingsUseCase(SettingsRepository settingsRepository, InstallationWorksRepository installationWorksRepository) {
+        this.settingsRepository = settingsRepository;
         this.installationWorksRepository = installationWorksRepository;
     }
 
     public boolean isLowResolutionSelected() {
-        return resolutionRepository.isLow();
+        return settingsRepository.isLow();
     }
 
     public void setResolution(boolean isLow) {
-        resolutionRepository.setResolution(isLow);
+        settingsRepository.setResolution(isLow);
     }
 
     public int getWidth() {
-        return resolutionRepository.width();
+        return settingsRepository.width();
     }
 
     public int getGifWidth() {
-        return resolutionRepository.getGifWidth();
+        return settingsRepository.getGifWidth();
     }
 
     public boolean getGifTurned() {
-        return resolutionRepository.isGifTurned();
+        return settingsRepository.isGifTurned();
     }
 
     public void setGifTurned(boolean turned) {
-        resolutionRepository.setGifTurned(turned);
+        settingsRepository.setGifTurned(turned);
     }
 
     public void removeData() {
         installationWorksRepository.removeAll();
-        resolutionRepository.remove();
+        settingsRepository.remove();
     }
 
     public int getGifFramesCount() {
-        return resolutionRepository.getGifGFramesCount();
+        return settingsRepository.getGifGFramesCount();
     }
 
     public void setGifFramesCount(int value) {
-        resolutionRepository.setGifFramesCount(value);
+        settingsRepository.setGifFramesCount(value);
+    }
+
+    public int getFramesDelay() {
+        return settingsRepository.getFramesDelay();
+    }
+
+    public void setFramesDelay(int delay) {
+        settingsRepository.setFramesDelay(delay);
     }
 }
